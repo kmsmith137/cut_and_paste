@@ -11,6 +11,8 @@ public:
     my_timing_thread(const shared_ptr<timing_thread_pool> &pool_) :
 	timing_thread(pool_, true)   // pin_to_core=true
     { }
+    
+    virtual ~my_timing_thread() { }
 
     void time_sleep()
     {
