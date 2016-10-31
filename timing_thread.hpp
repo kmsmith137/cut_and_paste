@@ -12,10 +12,13 @@ public:
 
     timing_thread_pool(int nthreads);
 
-    int get_ithread();
+    typedef struct timeval time_t;
 
-    struct timeval start_timer();
-    double stop_timer(const struct timeval &tv0);
+    time_t start_timer();
+    double stop_timer(const time_t &start_time);
+    
+    // Helper function called by timing_thread.
+    int get_and_increment_thread_id();
 
 protected:
     std::mutex lock;
@@ -35,17 +38,18 @@ protected:
 class timing_thread {
 public:
     const std::shared_ptr<timing_thread_pool> pool;
-    const int thread_id;
     const bool pinned_to_core;
+    const int thread_id;
+    const int nthreads;
 
-    static void _spawn(timing_thread *t);
+    static void _thread_main(timing_thread *t);
 
 protected:
     timing_thread(const std::shared_ptr<timing_thread_pool> &pool, bool pin_to_core);
 
     virtual void thread_body() = 0;
 
-    struct timeval tv0;
+    timing_thread_pool::time_t start_time;
     bool timer_is_running = false;
 
     void start_timer();
@@ -57,7 +61,7 @@ template<typename T, typename... Args>
 std::thread spawn_timing_thread(Args... args)
 {
     timing_thread *t = new T(args...);
-    return std::thread(timing_thread::_spawn, t);
+    return std::thread(timing_thread::_thread_main, t);
 }
 
 
