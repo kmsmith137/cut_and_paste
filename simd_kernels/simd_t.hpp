@@ -1,7 +1,7 @@
 #include "immintrin.h"
 
-#ifndef _SIMD_OPS_HPP
-#define _SIMD_OPS_HPP
+#ifndef _SIMD_T_HPP
+#define _SIMD_T_HPP
 
 template<typename T, unsigned int S> struct simd_t;
 

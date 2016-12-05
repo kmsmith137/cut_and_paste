@@ -1,7 +1,7 @@
-#include "simd_ops.hpp"
+#include "simd_t.hpp"
 
-#ifndef _NTUPLE_HPP
-#define _NTUPLE_HPP
+#ifndef _SIMD_NTUPLE_HPP
+#define _SIMD_NTUPLE_HPP
 
 
 template<typename T, unsigned int S, unsigned int N>
