@@ -16,13 +16,13 @@ struct simd_ntuple
 	x.setzero();
     }
 
-    inline void loadu(const float *p)
+    inline void loadu(const T *p)
     {
 	v.loadu(p);
 	x.loadu(p+(N-1)*S);
     }
 
-    inline void storeu(float *p) const
+    inline void storeu(T *p) const
     {
 	v.storeu(p);
 	x.storeu(p+(N-1)*S);
@@ -34,8 +34,8 @@ template<typename T, unsigned int S>
 struct simd_ntuple<T,S,0> 
 { 
     inline void setzero() { }
-    inline void loadu(const float *p) { }
-    inline void storeu(float *p) const { }
+    inline void loadu(const T *p) { }
+    inline void storeu(T *p) const { }
 };
 
 
