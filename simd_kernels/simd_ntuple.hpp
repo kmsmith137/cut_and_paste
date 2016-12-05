@@ -21,6 +21,12 @@ struct simd_ntuple
 	v.loadu(p);
 	x.loadu(p+(N-1)*S);
     }
+
+    inline void storeu(float *p) const
+    {
+	v.storeu(p);
+	x.storeu(p+(N-1)*S);
+    }
 };
 
 
@@ -29,6 +35,7 @@ struct simd_ntuple<T,S,0>
 { 
     inline void setzero() { }
     inline void loadu(const float *p) { }
+    inline void storeu(float *p) const { }
 };
 
 

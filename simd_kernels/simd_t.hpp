@@ -15,8 +15,8 @@ template<> struct simd_t<float,4>
     inline void load(const float *p)  { x = _mm_load_ps(p); }
     inline void loadu(const float *p) { x = _mm_loadu_ps(p); }
 
-    inline void store(float *p)  { _mm_store_ps(p,x); }
-    inline void storeu(float *p) { _mm_storeu_ps(p,x); }
+    inline void store(float *p) const  { _mm_store_ps(p,x); }
+    inline void storeu(float *p) const { _mm_storeu_ps(p,x); }
 };
 
 
@@ -29,8 +29,8 @@ template<> struct simd_t<float,8>
     inline void load(const float *p)  { x = _mm256_load_ps(p); }
     inline void loadu(const float *p) { x = _mm256_loadu_ps(p); }
 
-    inline void store(float *p)  { _mm256_store_ps(p,x); }
-    inline void storeu(float *p) { _mm256_storeu_ps(p,x); }
+    inline void store(float *p) const  { _mm256_store_ps(p,x); }
+    inline void storeu(float *p) const { _mm256_storeu_ps(p,x); }
 };
 
 
