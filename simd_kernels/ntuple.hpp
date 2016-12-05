@@ -4,24 +4,31 @@
 #define _NTUPLE_HPP
 
 
-template<typename T, unsigned int N>
-struct ntuple
+template<typename T, unsigned int S, unsigned int N>
+struct simd_ntuple
 {
-    ntuple<T,N-1> v;
-    T x;
+    simd_ntuple<T,S,N-1> v;
+    simd_t<T,S> x;
 
     inline void setzero()
     {
 	v.setzero();
-	x = simd_ops<T>::setzero();
+	x.setzero();
+    }
+
+    inline void loadu(const float *p)
+    {
+	v.loadu(p);
+	x.loadu(p+(N-1)*S);
     }
 };
 
 
-template<typename T> 
-struct ntuple<T,0> 
+template<typename T, unsigned int S> 
+struct simd_ntuple<T,S,0> 
 { 
     inline void setzero() { }
+    inline void loadu(const float *p) { }
 };
 
 
