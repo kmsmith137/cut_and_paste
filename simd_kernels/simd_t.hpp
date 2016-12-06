@@ -1,3 +1,4 @@
+#include <sstream>
 #include "immintrin.h"
 
 #ifndef _SIMD_T_HPP
@@ -44,12 +45,29 @@ template<> struct simd_t<float,4>
     {
 	simd_t<float,4> y = this->horizontal_sum();
 	
-	// For some reason calling extract<0>() here gives a compiler error,
-	// so we cut-and-paste the logic.
-
+	// For some reason calling extract<0>() here gives a compiler error, so we cut-and-paste.
 	union { int i; float x; } u;
 	u.i = _mm_extract_ps(y.x, 0);
 	return u.x;
+    }
+
+    std::string str(bool bracket=true) const
+    {
+	std::stringstream ss;
+	
+	if (bracket)
+	    ss << "[ ";
+
+	union { int i; float x; } u;
+	u.i = _mm_extract_ps(x,0); ss << u.x << ", ";
+	u.i = _mm_extract_ps(x,1); ss << u.x << ", ";
+	u.i = _mm_extract_ps(x,2); ss << u.x << ", ";
+	u.i = _mm_extract_ps(x,3); ss << u.x;
+
+	if (bracket)
+	    ss << " ]";
+
+	return ss.str();
     }
 };
 
@@ -93,6 +111,24 @@ template<> struct simd_t<float,8>
 
 	simd_t<float,4> z = _mm256_extractf128_ps(y, 0);
 	return z.sum();
+    }
+
+    std::string str(bool bracket=true) const
+    {
+	simd_t<float,4> x0 = _mm256_extractf128_ps(x, 0);
+	simd_t<float,4> x1 = _mm256_extractf128_ps(x, 1);
+
+	std::stringstream ss;
+	
+	if (bracket)
+	    ss << "[ ";
+
+	ss << x0.str(false) << ", " << x1.str(false);
+
+	if (bracket)
+	    ss << " ]";
+
+	return ss.str();
     }
 };
 
