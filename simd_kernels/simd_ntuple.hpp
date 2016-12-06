@@ -90,15 +90,30 @@ struct simd_ntuple
 	return ret;
     }
 
-    inline void multiply_add(const simd_t<T,S> &w, const simd_ntuple<T,S,N> &t)
+    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,N> &t, simd_t<T,S> u) const
     {
-	v.multiply_add(w, t.v);
-	x += w * t.x;
+	return v._vertical_dot(t.v, u + x*t.x);
     }
 
-    inline simd_t<T,S> vertical_sum() const  { return v.vertical_sum() + x; }
+    inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const
+    {
+	return v._vertical_sum(u + x);
+    }
 
-    inline T sum() const { return this->vertical_sum().sum(); }
+    inline simd_t<T,S> vertical_dot(const simd_ntuple<T,S,N> &t) const
+    {
+	return v._vertical_dot(t.v, x*t.x);
+    }
+
+    inline simd_t<T,S> vertical_sum() const
+    {
+	return v._vertical_sum(x);
+    }
+
+    inline T sum() const
+    {
+	return this->vertical_sum().sum();
+    }
     
     inline T compare(const T *p) const
     {
@@ -130,14 +145,9 @@ struct simd_ntuple<T,S,0>
     inline simd_ntuple<T,S,0> operator*(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0>(); }
     inline simd_ntuple<T,S,0> operator/(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0>(); }
 
-    inline void multiply_add(const simd_t<T,S> &w, const simd_ntuple<T,S,0> &t) { }
-
-    inline simd_t<T,S> vertical_sum() const { return 0; }
+    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
+    inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const { return u; }
 };
-
-
-//template<typename T, unsigned int S> 
-//inline simd_t<T,S> simd_ntuple<T,S,1>::vertical_sum() const { return this->x; }
 
 
 #endif // _SIMD_NTUPLE_HPP
