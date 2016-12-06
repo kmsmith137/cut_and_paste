@@ -120,20 +120,33 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
     vector<T> vbuf;
     simd_ntuple<T,S,N> v;
     randomize_vector(rng, v, vbuf);
-    
-    simd_ntuple<T,S,N> w = m.multiply_lower(v);
-    vector<T> wbuf = reference_multiply_lower(mbuf, vbuf, S, N);
-    double epsilon = w.compare(&wbuf[0]);
+
+    vector<T> wbuf;
+    simd_ntuple<T,S,N> w, x;
+    double epsilon;
+
+    // multiply_lower()
+    w = m.multiply_lower(v);
+    wbuf = reference_multiply_lower(mbuf, vbuf, S, N);
+    epsilon = w.compare(&wbuf[0]);
     assert(epsilon < 1.0e-6);
     
+    // multiply_upper()
     w = m.multiply_upper(v);
     wbuf = reference_multiply_upper(mbuf, vbuf, S, N);
     epsilon = w.compare(&wbuf[0]);
     assert(epsilon < 1.0e-6);
     
+    // multiply_symmetric()
     w = m.multiply_symmetric(v);
     wbuf = reference_multiply_symmetric(mbuf, vbuf, S, N);
     epsilon = w.compare(&wbuf[0]);
+    assert(epsilon < 1.0e-6);
+
+    // solve_lower()
+    w = m.solve_lower(v);
+    x = m.multiply_lower(w);
+    epsilon = x.compare(v);
     assert(epsilon < 1.0e-6);
 }
 

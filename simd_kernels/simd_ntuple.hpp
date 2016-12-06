@@ -53,23 +53,21 @@ struct simd_ntuple
     inline simd_ntuple<T,S,N> _rsub(const simd_t<T,S> &t)  { simd_ntuple<T,S,N> ret; ret.v = t-v; ret.x = t-x; return ret; }
     inline simd_ntuple<T,S,N> _rdiv(const simd_t<T,S> &t)  { simd_ntuple<T,S,N> ret; ret.v = t/v; ret.x = t/x; return ret; }
 
-    // vertical_dot(): returns elementwise length-N dot product of simd_t's
-    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,N> &t, simd_t<T,S> u) const  { return v._vertical_dot(t.v, u + x*t.x); }
-    inline simd_t<T,S> vertical_dot(const simd_ntuple<T,S,N> &t) const  { return v._vertical_dot(t.v, x*t.x); }
-
     // vertical_sum(): returns elementwise sum of all N simd_t's
     inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const  { return v._vertical_sum(u+x); }
     inline simd_t<T,S> vertical_sum() const  { return v._vertical_sum(x); }
 
+    // vertical_dot(): returns elementwise length-N dot product of simd_t's
+    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,N> &t, simd_t<T,S> u) const  { return v._vertical_dot(t.v, u + x*t.x); }
+    inline simd_t<T,S> _vertical_dotn(const simd_ntuple<T,S,N> &t, simd_t<T,S> u) const { return v._vertical_dotn(t.v, u - x*t.x); }
+    inline simd_t<T,S> vertical_dot(const simd_ntuple<T,S,N> &t) const  { return v._vertical_dot(t.v, x*t.x); }
+
     // sum(): returns sum of all scalars in the simd_ntuple
     inline T sum() const { return this->vertical_sum().sum(); }
 
-    inline T compare(const T *p) const
+    inline T compare(const simd_ntuple<T,S,N> &b) const
     {
 	const simd_ntuple<T,S,N> &a = *this;
-	
-	simd_ntuple<T,S,N> b;
-	b.loadu(p);
 	
 	simd_ntuple<T,S,N> t = (a-b);
 	float num = (t*t).sum();
@@ -78,6 +76,13 @@ struct simd_ntuple
 	float den = t.sum();
 	
 	return (den > 0.0) ? sqrt(num/den) : 0.0;
+    }
+
+    inline T compare(const T *p) const
+    {
+	simd_ntuple<T,S,N> b;
+	b.loadu(p);
+	return this->compare(b);
     }
 
     inline std::string str(bool incomplete=false) const
@@ -117,8 +122,9 @@ struct simd_ntuple<T,S,0>
     inline simd_ntuple<T,S,0> _rsub(const simd_t<T,S> &t) const { return simd_ntuple<T,S,0>(); }
     inline simd_ntuple<T,S,0> _rdiv(const simd_t<T,S> &t) const { return simd_ntuple<T,S,0>(); }
 
-    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
     inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const { return u; }
+    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
+    inline simd_t<T,S> _vertical_dotn(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
 
     inline std::string str(bool incomplete) const { return incomplete ? "(" : "()"; }
 };
