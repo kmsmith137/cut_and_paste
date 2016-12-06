@@ -130,7 +130,7 @@ struct simd_ntuple<T,S,0>
     inline simd_ntuple<T,S,0> operator*(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0>(); }
     inline simd_ntuple<T,S,0> operator/(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0>(); }
 
-    inline void multiply_add(const simd_t<T,S> &w, const simd_ntuple<T,S,N> &t) { }
+    inline void multiply_add(const simd_t<T,S> &w, const simd_ntuple<T,S,0> &t) { }
 
     inline simd_t<T,S> vertical_sum() const { return 0; }
 };
