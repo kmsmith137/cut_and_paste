@@ -94,6 +94,12 @@ struct simd_trimatrix {
     inline simd_t<T,S> _vertical_sum(simd_t<T,S> x) const { return m._vertical_sum(x + v.vertical_sum()); }
     inline simd_t<T,S> vertical_sum() const { return m._vertical_sum(v.vertical_sum()); }
 
+    inline void horizontal_sum_in_place()
+    {
+	m.horizontal_sum_in_place();
+	v.horizontal_sum_in_place();
+    }
+
     // sum(): returns sum of all scalar elements in the matrix
     inline T sum() const { return this->vertical_sum().sum(); }
 
@@ -218,6 +224,7 @@ struct simd_trimatrix<T,S,0>
     inline simd_ntuple<T,S,0> solve_lower(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
     inline simd_ntuple<T,S,0> solve_upper(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
 
+    inline void horizontal_sum_in_place() { }
     inline void cholesky_in_place() { }
     inline void decholesky_in_place() { }
 };

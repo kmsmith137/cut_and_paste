@@ -62,6 +62,12 @@ struct simd_ntuple
     inline simd_t<T,S> _vertical_dotn(const simd_ntuple<T,S,N> &t, simd_t<T,S> u) const { return v._vertical_dotn(t.v, u - x*t.x); }
     inline simd_t<T,S> vertical_dot(const simd_ntuple<T,S,N> &t) const  { return v._vertical_dot(t.v, x*t.x); }
 
+    inline void horizontal_sum_in_place()
+    {
+	v.horizontal_sum_in_place();
+	x = x.horizontal_sum();
+    }
+
     // sum(): returns sum of all scalars in the simd_ntuple
     inline T sum() const { return this->vertical_sum().sum(); }
 
@@ -125,6 +131,8 @@ struct simd_ntuple<T,S,0>
     inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const { return u; }
     inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
     inline simd_t<T,S> _vertical_dotn(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
+
+    inline void horizontal_sum_in_place() { }
 
     inline std::string str(bool incomplete) const { return incomplete ? "(" : "()"; }
 };
