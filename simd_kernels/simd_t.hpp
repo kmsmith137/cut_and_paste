@@ -15,6 +15,9 @@ template<> struct simd_t<float,4>
     simd_t(__m128 y) { x = y; }
     simd_t(float y)  { x = _mm_set1_ps(y); }
 
+    static simd_t<float,4> zero()  { return _mm_setzero_ps(); }
+    static simd_t<float,4> range() { return _mm_set_ps(0., 1., 2., 3.); }
+
     inline void set1(float y) { x = _mm_set1_ps(y); }
     inline void setzero() { x = _mm_setzero_ps(); }
 
@@ -79,6 +82,9 @@ template<> struct simd_t<float,8>
     simd_t() { }
     simd_t(__m256 y) { x = y; }
     simd_t(float y)  { x = _mm256_set1_ps(y); }
+
+    static simd_t<float,8> zero()  { return _mm256_setzero_ps(); }
+    static simd_t<float,8> range() { return _mm256_set_ps(0., 1., 2., 3., 4., 5., 6., 7.); }
 
     inline void set1(float y) { x = _mm256_set1_ps(y); }
     inline void setzero() { x = _mm256_setzero_ps(); }
