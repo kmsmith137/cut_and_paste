@@ -119,7 +119,7 @@ struct simd_trimatrix<T,S,0>
 {
     inline void setzero() { }
     inline void loadu(const T *p) { }
-    inline void storeu(T *p) { }
+    inline void storeu(T *p) const { }
 
     inline simd_trimatrix<T,S,0> &operator+=(const simd_trimatrix<T,S,0> &t) { return *this; }
     inline simd_trimatrix<T,S,0> &operator-=(const simd_trimatrix<T,S,0> &t) { return *this; }
