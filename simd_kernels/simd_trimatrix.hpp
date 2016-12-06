@@ -116,7 +116,7 @@ struct simd_trimatrix {
     // In-register linear algebra inlines start here.
     // Note: "in place" versions of multiply_*() and solve_*() would be easy to implement if needed.
 
-    simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
+    inline simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
 	ret.x = this->v.vertical_dot(t);
@@ -124,7 +124,7 @@ struct simd_trimatrix {
 	return ret;
     }
 
-    simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const
+    inline simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
 	ret.v = this->m.multiply_upper(t.v);
@@ -133,7 +133,7 @@ struct simd_trimatrix {
 	return ret;
     }
 
-    simd_ntuple<T,S,N> multiply_symmetric(const simd_ntuple<T,S,N> &t) const
+    inline simd_ntuple<T,S,N> multiply_symmetric(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
 	ret.v = this->m.multiply_symmetric(t.v) + this->v.v * t.x;
@@ -141,7 +141,7 @@ struct simd_trimatrix {
 	return ret;
     }
 
-    simd_ntuple<T,S,N> solve_lower(const simd_ntuple<T,S,N> &t) const
+    inline simd_ntuple<T,S,N> solve_lower(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
 	ret.v = this->m.solve_lower(t.v);
@@ -149,11 +149,25 @@ struct simd_trimatrix {
 	return ret;
     }
 
-    simd_ntuple<T,S,N> solve_upper(const simd_ntuple<T,S,N> &t) const
+    inline simd_ntuple<T,S,N> solve_upper(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
 	ret.x = t.x / this->v.x;
 	ret.v = this->m.solve_upper(t.v - this->v.v * ret.x);
+	return ret;
+    }
+
+    inline void decholesky_in_place()
+    {
+	v.x = v.vertical_dot(v);
+	v.v = m.multiply_lower(v.v);
+	m.decholesky_in_place();
+    }
+
+    inline simd_trimatrix<T,S,N> decholesky()
+    {
+	simd_trimatrix<T,S,N> ret = *this;
+	ret.decholesky_in_place();
 	return ret;
     }
 };
@@ -181,9 +195,11 @@ struct simd_trimatrix<T,S,0>
     inline simd_ntuple<T,S,0> multiply_lower(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
     inline simd_ntuple<T,S,0> multiply_upper(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
     inline simd_ntuple<T,S,0> multiply_symmetric(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
-
     inline simd_ntuple<T,S,0> solve_lower(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
     inline simd_ntuple<T,S,0> solve_upper(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
+
+    inline void cholesky_in_place() { }
+    inline void decholesky_in_place() { }
 };
 
 

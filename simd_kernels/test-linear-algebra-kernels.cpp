@@ -154,6 +154,14 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
     x = m.multiply_upper(w);
     epsilon = x.compare(v);
     assert(epsilon < 1.0e-6);
+
+    // decholesky()
+    simd_trimatrix<T,S,N> p = m.decholesky();
+    w = p.multiply_symmetric(v);
+    x = m.multiply_upper(v);
+    x = m.multiply_lower(x);
+    epsilon = x.compare(w);
+    assert(epsilon < 1.0e-6);
 }
 
 
