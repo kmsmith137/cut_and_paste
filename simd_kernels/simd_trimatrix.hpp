@@ -97,12 +97,9 @@ struct simd_trimatrix {
     // sum(): returns sum of all scalar elements in the matrix
     inline T sum() const { return this->vertical_sum().sum(); }
 
-    inline T compare(const T *p) const
+    inline T compare(const simd_trimatrix<T,S,N> &b) const
     {
 	const simd_trimatrix<T,S,N> &a = *this;
-	
-	simd_trimatrix<T,S,N> b;
-	b.loadu(p);
 
 	simd_trimatrix<T,S,N> t = (a-b);
 	float num = (t*t).sum();
@@ -111,6 +108,13 @@ struct simd_trimatrix {
 	float den = t.sum();
 	
 	return (den > 0.0) ? sqrt(num/den) : 0.0;
+    }
+
+    inline T compare(const T *p) const
+    {
+	simd_trimatrix<T,S,N> b;
+	b.loadu(p);
+	return this->compare(b);
     }
 
     // In-register linear algebra inlines start here.
@@ -154,6 +158,22 @@ struct simd_trimatrix {
 	simd_ntuple<T,S,N> ret;
 	ret.x = t.x / this->v.x;
 	ret.v = this->m.solve_upper(t.v - this->v.v * ret.x);
+	return ret;
+    }
+
+    inline void cholesky_in_place()
+    {
+	m.cholesky_in_place();
+	v.v = m.solve_lower(v.v);
+	
+	simd_t<T,S> u = v.v._vertical_dotn(v.v, v.x);
+	v.x = u.sqrt();
+    }
+
+    inline simd_trimatrix<T,S,N> cholesky()
+    {
+	simd_trimatrix<T,S,N> ret = *this;
+	ret.cholesky_in_place();
 	return ret;
     }
 

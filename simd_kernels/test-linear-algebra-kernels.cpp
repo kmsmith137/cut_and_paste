@@ -27,7 +27,7 @@ void randomize_triangular_matrix(std::mt19937 &rng, simd_trimatrix<T,S,N> &m, ve
     for (int i = 0; i < N; i++) {
 	int j = (i*(i+1)*S) / 2;
 	gaussian_rand(rng, &buf[j], i*S);
-	uniform_rand(rng, &buf[j+i*S], S, 1.0, 2.0);
+	uniform_rand(rng, &buf[j+i*S], S, 5.0, 10.0);
     }
 
     m.loadu(&buf[0]);
@@ -161,6 +161,11 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
     x = m.multiply_upper(v);
     x = m.multiply_lower(x);
     epsilon = x.compare(w);
+    assert(epsilon < 1.0e-6);
+
+    // cholesky()
+    simd_trimatrix<T,S,N> m2 = p.cholesky();
+    epsilon = m2.compare(m);
     assert(epsilon < 1.0e-6);
 }
 
