@@ -114,9 +114,7 @@ struct simd_trimatrix {
     }
 
     // In-register linear algebra inlines start here.
-    //
-    // Note: multiply_lower_in_place() and multiply_upper_in_place() 
-    // would be easy to implement, but I haven't needed these yet.
+    // Note: "in place" versions of multiply_*() and solve_*() would be easy to implement if needed.
 
     simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
     {
@@ -148,6 +146,14 @@ struct simd_trimatrix {
 	simd_ntuple<T,S,N> ret;
 	ret.v = this->m.solve_lower(t.v);
 	ret.x = this->v.v._vertical_dotn(ret.v, t.x) / this->v.x;
+	return ret;
+    }
+
+    simd_ntuple<T,S,N> solve_upper(const simd_ntuple<T,S,N> &t) const
+    {
+	simd_ntuple<T,S,N> ret;
+	ret.x = t.x / this->v.x;
+	ret.v = this->m.solve_upper(t.v - this->v.v * ret.x);
 	return ret;
     }
 };
