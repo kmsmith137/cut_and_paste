@@ -4,6 +4,7 @@
 #ifndef _SIMD_TRIMATRIX_HPP
 #define _SIMD_TRIMATRIX_HPP
 
+
 template<typename T, unsigned int S, unsigned int N>
 struct simd_trimatrix {
     simd_trimatrix<T,S,N-1> m;
@@ -110,6 +111,35 @@ struct simd_trimatrix {
 	float den = t.sum();
 	
 	return (den > 0.0) ? sqrt(num/den) : 0.0;
+    }
+
+    // In-register linear algebra inlines start here.
+    //
+    // Note: multiply_lower_in_place() and multiply_upper_in_place() 
+    // would be easy to implement, but I haven't needed these yet.
+
+    simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
+    {
+	simd_ntuple<T,S,N> ret;
+	ret.x = this->v.dot(t);
+	ret.v = this->m.multiply_lower(t.v);
+	return ret;
+    }
+
+    simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const
+    {
+	simd_ntuple<T,S,N> ret;
+	ret.v = this->m.multiply_lower(t.v);
+	ret.v += this->v.v * t.x;
+	ret.x = this->v.x * t.x;
+    }
+
+    simd_ntuple<T,S,N> multiply_symmetric(const simd_ntuple<T,S,N> &t) const
+    {
+	simd_ntuple<T,S,N> ret;
+	ret.v = this->m.multiply_symmetric(t.v);
+	ret.v += this->v.v * t.v;
+	ret.x = this->v.dot(t);
     }
 };
 
