@@ -140,6 +140,11 @@ struct simd_ntuple<T,S,0>
     inline void loadu(const T *p) { }
     inline void storeu(T *p) const { }
 
+    inline simd_ntuple<T,S,0> &operator+=(const simd_ntuple<T,S,0> &t) { return *this; }
+    inline simd_ntuple<T,S,0> &operator-=(const simd_ntuple<T,S,0> &t) { return *this; }
+    inline simd_ntuple<T,S,0> &operator*=(const simd_ntuple<T,S,0> &t) { return *this; }
+    inline simd_ntuple<T,S,0> &operator/=(const simd_ntuple<T,S,0> &t) { return *this; }
+
     inline simd_ntuple<T,S,0> operator+(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0>(); }
     inline simd_ntuple<T,S,0> operator-(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0>(); }
     inline simd_ntuple<T,S,0> operator*(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0>(); }
