@@ -79,6 +79,11 @@ struct simd_ntuple
 	
 	return (den > 0.0) ? sqrt(num/den) : 0.0;
     }
+
+    inline std::string str(bool incomplete=false) const
+    {
+	return v.str(true) + x.str() + (incomplete ? ", " : ")");
+    }
 };
 
 
@@ -114,6 +119,8 @@ struct simd_ntuple<T,S,0>
 
     inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
     inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const { return u; }
+
+    inline std::string str(bool incomplete) const { return incomplete ? "(" : "()"; }
 };
 
 
