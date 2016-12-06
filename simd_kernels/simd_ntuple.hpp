@@ -53,32 +53,17 @@ struct simd_ntuple
     inline simd_ntuple<T,S,N> _rsub(const simd_t<T,S> &t)  { simd_ntuple<T,S,N> ret; ret.v = t-v; ret.x = t-x; return ret; }
     inline simd_ntuple<T,S,N> _rdiv(const simd_t<T,S> &t)  { simd_ntuple<T,S,N> ret; ret.v = t/v; ret.x = t/x; return ret; }
 
-    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,N> &t, simd_t<T,S> u) const
-    {
-	return v._vertical_dot(t.v, u + x*t.x);
-    }
+    // vertical_dot(): returns elementwise length-N dot product of simd_t's
+    inline simd_t<T,S> _vertical_dot(const simd_ntuple<T,S,N> &t, simd_t<T,S> u) const  { return v._vertical_dot(t.v, u + x*t.x); }
+    inline simd_t<T,S> vertical_dot(const simd_ntuple<T,S,N> &t) const  { return v._vertical_dot(t.v, x*t.x); }
 
-    inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const
-    {
-	return v._vertical_sum(u + x);
-    }
+    // vertical_sum(): returns elementwise sum of all N simd_t's
+    inline simd_t<T,S> _vertical_sum(simd_t<T,S> u) const  { return v._vertical_sum(u+x); }
+    inline simd_t<T,S> vertical_sum() const  { return v._vertical_sum(x); }
 
-    inline simd_t<T,S> vertical_dot(const simd_ntuple<T,S,N> &t) const
-    {
-	return v._vertical_dot(t.v, x*t.x);
-    }
+    // sum(): returns sum of all scalars in the simd_ntuple
+    inline T sum() const { return this->vertical_sum().sum(); }
 
-    inline simd_t<T,S> vertical_sum() const
-    {
-	return v._vertical_sum(x);
-    }
-
-    inline T sum() const
-    {
-	return this->vertical_sum().sum();
-    }
-
-    // only used in debug paths, so not optimized    
     inline T compare(const T *p) const
     {
 	const simd_ntuple<T,S,N> &a = *this;
@@ -86,8 +71,8 @@ struct simd_ntuple
 	simd_ntuple<T,S,N> b;
 	b.loadu(p);
 	
-	simd_ntuple<T,S,N> t = (a-b) * (a-b);
-	float num = t.sum();
+	simd_ntuple<T,S,N> t = (a-b);
+	float num = (t*t).sum();
 	
 	t = a*a + b*b;
 	float den = t.sum();

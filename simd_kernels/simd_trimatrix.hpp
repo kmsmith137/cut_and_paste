@@ -89,10 +89,13 @@ struct simd_trimatrix {
 	return ret;
     }
 
-    // only used in debug paths, so not optimized
-    inline T sum() const { return m.sum() + v.sum(); }
+    // vertical_sum(): returns elementwise sum of all simd_t's in the triangular matrix
+    inline simd_t<T,S> _vertical_sum(simd_t<T,S> x) const { return m._vertical_sum(x + v.vertical_sum()); }
+    inline simd_t<T,S> vertical_sum() const { return m._vertical_sum(v.vertical_sum()); }
 
-    // only used in debug paths, so not optimized
+    // sum(): returns sum of all scalar elements in the matrix
+    inline T sum() const { return this->vertical_sum().sum(); }
+
     inline T compare(const T *p) const
     {
 	const simd_trimatrix<T,S,N> &a = *this;
@@ -100,8 +103,8 @@ struct simd_trimatrix {
 	simd_trimatrix<T,S,N> b;
 	b.loadu(p);
 
-	simd_trimatrix<T,S,N> t = (a-b) * (a-b);
-	float num = t.sum();
+	simd_trimatrix<T,S,N> t = (a-b);
+	float num = (t*t).sum();
 	
 	t = a*a + b*b;
 	float den = t.sum();
@@ -128,7 +131,7 @@ struct simd_trimatrix<T,S,0>
     inline simd_trimatrix<T,S,0> operator*(const simd_trimatrix<T,S,0> &t) const { return simd_trimatrix<T,S,0>(); }
     inline simd_trimatrix<T,S,0> operator/(const simd_trimatrix<T,S,0> &t) const { return simd_trimatrix<T,S,0>(); }
 
-    inline T sum() const { return 0.0; }
+    inline simd_t<T,S> _vertical_sum(simd_t<T,S> x) const { return x; }
 };
 
 

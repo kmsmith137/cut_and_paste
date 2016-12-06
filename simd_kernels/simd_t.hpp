@@ -27,6 +27,9 @@ template<> struct simd_t<float,4>
     inline void store(float *p) const  { _mm_store_ps(p,x); }
     inline void storeu(float *p) const { _mm_storeu_ps(p,x); }
 
+    inline simd_t<float,4> sqrt() const { return _mm_sqrt_ps(x); }
+    inline simd_t<float,4> rsqrt() const { return _mm_rsqrt_ps(x); }
+
     template<unsigned int M> 
     inline float extract() const
     {
@@ -47,25 +50,20 @@ template<> struct simd_t<float,4>
     inline float sum() const
     {
 	simd_t<float,4> y = this->horizontal_sum();
-	
-	// For some reason calling extract<0>() here gives a compiler error, so we cut-and-paste.
-	union { int i; float x; } u;
-	u.i = _mm_extract_ps(y.x, 0);
-	return u.x;
+	return y.extract<0> ();
     }
 
-    std::string str(bool bracket=true) const
+    inline std::string str(bool bracket=true) const
     {
 	std::stringstream ss;
 	
 	if (bracket)
 	    ss << "[ ";
 
-	union { int i; float x; } u;
-	u.i = _mm_extract_ps(x,0); ss << u.x << ", ";
-	u.i = _mm_extract_ps(x,1); ss << u.x << ", ";
-	u.i = _mm_extract_ps(x,2); ss << u.x << ", ";
-	u.i = _mm_extract_ps(x,3); ss << u.x;
+	ss << this->extract<0>() << ", "
+	   << this->extract<1>() << ", "
+	   << this->extract<2>() << ", "
+	   << this->extract<3>();
 
 	if (bracket)
 	    ss << " ]";
@@ -94,6 +92,9 @@ template<> struct simd_t<float,8>
 
     inline void store(float *p) const  { _mm256_store_ps(p,x); }
     inline void storeu(float *p) const { _mm256_storeu_ps(p,x); }
+
+    inline simd_t<float,8> sqrt() const { return _mm256_sqrt_ps(x); }
+    inline simd_t<float,8> rsqrt() const { return _mm256_rsqrt_ps(x); }
 
     template<unsigned int M> 
     inline float extract() const
