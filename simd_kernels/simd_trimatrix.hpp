@@ -121,7 +121,7 @@ struct simd_trimatrix {
     simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
-	ret.x = this->v.dot(t);
+	ret.x = this->v.vertical_dot(t);
 	ret.v = this->m.multiply_lower(t.v);
 	return ret;
     }
@@ -129,17 +129,18 @@ struct simd_trimatrix {
     simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
-	ret.v = this->m.multiply_lower(t.v);
+	ret.v = this->m.multiply_upper(t.v);
 	ret.v += this->v.v * t.x;
 	ret.x = this->v.x * t.x;
+	return ret;
     }
 
     simd_ntuple<T,S,N> multiply_symmetric(const simd_ntuple<T,S,N> &t) const
     {
 	simd_ntuple<T,S,N> ret;
-	ret.v = this->m.multiply_symmetric(t.v);
-	ret.v += this->v.v * t.v;
-	ret.x = this->v.dot(t);
+	ret.v = this->m.multiply_symmetric(t.v) + this->v.v * t.x;
+	ret.x = this->v.vertical_dot(t);
+	return ret;
     }
 };
 
@@ -162,6 +163,10 @@ struct simd_trimatrix<T,S,0>
     inline simd_trimatrix<T,S,0> operator/(const simd_trimatrix<T,S,0> &t) const { return simd_trimatrix<T,S,0>(); }
 
     inline simd_t<T,S> _vertical_sum(simd_t<T,S> x) const { return x; }
+
+    inline simd_ntuple<T,S,0> multiply_lower(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
+    inline simd_ntuple<T,S,0> multiply_upper(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
+    inline simd_ntuple<T,S,0> multiply_symmetric(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
 };
 
 
