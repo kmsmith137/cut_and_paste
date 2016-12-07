@@ -55,7 +55,9 @@ protected:
     bool timer_is_running = false;
 
     void start_timer();
-    double stop_timer();
+
+    // If 'name' is non-null, then timing will be announced on thread ID zero.
+    double stop_timer(const char *name=nullptr);
 };
 
 

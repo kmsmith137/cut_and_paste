@@ -140,11 +140,17 @@ void timing_thread::start_timer()
 }
 
 
-double timing_thread::stop_timer()
+double timing_thread::stop_timer(const char *name)
 {
     if (!timer_is_running)
 	throw runtime_error("timing_thread::stop_timer() called without calling start_timer(), or double call to stop_timer()");
 
     this->timer_is_running = false;
-    return pool->stop_timer(start_time);
+
+    double ret = pool->stop_timer(start_time);
+
+    if (name && !thread_id)
+	cout << (string(name) + ": " + to_string(ret) + " seconds\n");
+
+    return ret;
 }
