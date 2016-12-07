@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "../rng.hpp"
+#include "../random.hpp"
 #include "simd_trimatrix.hpp"
 
 using namespace std;
