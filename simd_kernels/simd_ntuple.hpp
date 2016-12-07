@@ -30,6 +30,12 @@ struct simd_ntuple
 	x.storeu(p+(N-1)*S);
     }
 
+    inline void set1_slow(const T *p)
+    {
+	v.set1_slow(p);
+	x = simd_t<T,S>(p[N-1]);
+    }
+
     inline simd_ntuple<T,S,N> &operator+=(const simd_ntuple<T,S,N> &t)  { v += t.v; x += t.x; return *this; }
     inline simd_ntuple<T,S,N> &operator-=(const simd_ntuple<T,S,N> &t)  { v -= t.v; x -= t.x; return *this; }
     inline simd_ntuple<T,S,N> &operator*=(const simd_ntuple<T,S,N> &t)  { v *= t.v; x *= t.x; return *this; }
@@ -104,6 +110,7 @@ struct simd_ntuple<T,S,0>
     inline void setzero() { }
     inline void loadu(const T *p) { }
     inline void storeu(T *p) const { }
+    inline void set1_slow(const T *p) { }
 
     inline simd_ntuple<T,S,0> &operator+=(const simd_ntuple<T,S,0> &t) { return *this; }
     inline simd_ntuple<T,S,0> &operator-=(const simd_ntuple<T,S,0> &t) { return *this; }

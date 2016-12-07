@@ -30,6 +30,12 @@ struct simd_trimatrix {
 	v.storeu(p+(N*(N-1)*S)/2);
     }
 
+    inline void set1_slow(const T *p)
+    {
+	m.set1_slow(p);
+	v.set1_slow(p + (N*(N-1))/2);
+    }
+
     inline simd_trimatrix<T,S,N> &operator+=(const simd_trimatrix<T,S,N> &t)
     {
 	m += t.m;
@@ -205,6 +211,7 @@ struct simd_trimatrix<T,S,0>
     inline void setzero() { }
     inline void loadu(const T *p) { }
     inline void storeu(T *p) const { }
+    inline void set1_slow(const T *p) { }
 
     inline simd_trimatrix<T,S,0> &operator+=(const simd_trimatrix<T,S,0> &t) { return *this; }
     inline simd_trimatrix<T,S,0> &operator-=(const simd_trimatrix<T,S,0> &t) { return *this; }
