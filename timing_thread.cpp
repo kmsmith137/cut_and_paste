@@ -1,5 +1,8 @@
+#include <string>
 #include <stdexcept>
+#include <iostream>
 #include <sys/time.h>
+#include <pthread.h>
 #include "timing_thread.hpp"
 
 using namespace std;
@@ -7,6 +10,11 @@ using namespace std;
 
 static void pin_current_thread_to_core(int core_id)
 {
+#ifdef __APPLE__
+    if (core_id == 0)
+	cerr << "warning: pinning threads to cores is not implemented in osx\n";
+    return;
+#else
     int hwcores = std::thread::hardware_concurrency();
     
     if ((core_id < 0) || (core_id >= hwcores))
@@ -21,6 +29,7 @@ static void pin_current_thread_to_core(int core_id)
     int err = pthread_setaffinity_np(thread, sizeof(cs), &cs);
     if (err)
         throw runtime_error("pthread_setaffinity_np() failed");
+#endif
 }
 
 

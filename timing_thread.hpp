@@ -44,11 +44,12 @@ public:
 
     static void _thread_main(timing_thread *t);
 
+    virtual ~timing_thread() { }
+
 protected:
     timing_thread(const std::shared_ptr<timing_thread_pool> &pool, bool pin_to_core);
 
     virtual void thread_body() = 0;
-    virtual ~timing_thread() { }
 
     timing_thread_pool::time_t start_time;
     bool timer_is_running = false;
