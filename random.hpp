@@ -12,7 +12,7 @@
 
 // -------------------------------------------------------------------------------------------------
 //
-// Encyclopedia of nearly identical interfaces for uniform random numbers
+// Uniform distribution
 
 
 inline double uniform_rand(std::mt19937 &rng)
@@ -61,7 +61,7 @@ template<typename T> inline std::vector<T> uniform_randvec(std::mt19937 &rng, ss
 
 // -------------------------------------------------------------------------------------------------
 //
-// Encyclopedia of nearly identical interfaces for Gaussian random numbers
+// Gaussian distribution
 
 
 inline double gaussian_rand(std::mt19937 &rng, double rms=1.0)
@@ -88,6 +88,18 @@ template<typename T> inline std::vector<T> gaussian_randvec(std::mt19937 &rng, s
     gaussian_rand(rng, &ret[0], n, rms);
     return ret;
 }
+
+
+// -------------------------------------------------------------------------------------------------
+//
+// Integer distributions
+
+
+inline int randint(std::mt19937 &rng, int lo, int hi)
+{
+    return std::uniform_int_distribution<>(lo,hi-1)(rng);   // note hi-1 here!
+}
+
 
 
 #endif
