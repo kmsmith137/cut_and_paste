@@ -35,6 +35,11 @@ template<> struct simd_t<int,4>
     inline simd_t<int,4> min(simd_t<int,4> t) const { return _mm_min_epi32(x, t.x); }
     inline simd_t<int,4> max(simd_t<int,4> t) const { return _mm_max_epi32(x, t.x); }
 
+    inline simd_t<int,4> bitwise_and(simd_t<int,4> t) const     { return _mm_and_si128(x, t.x); }
+    inline simd_t<int,4> bitwise_or(simd_t<int,4> t) const      { return _mm_or_si128(x, t.x); }
+    inline simd_t<int,4> bitwise_xor(simd_t<int,4> t) const     { return _mm_xor_si128(x, t.x); }
+    inline simd_t<int,4> bitwise_andnot(simd_t<int,4> t) const  { return _mm_andnot_si128(x, t.x); }
+
     // Note: you might need to call this with the weird-looking syntax
     //    x.template extract<M> ();
     template<unsigned int M> inline int extract() const  { return _mm_extract_epi32(x, M); }
@@ -75,6 +80,11 @@ template<> struct simd_t<int,8>
 
     inline simd_t<int,8> min(simd_t<int,8> t) const { return _mm256_min_epi32(x, t.x); }
     inline simd_t<int,8> max(simd_t<int,8> t) const { return _mm256_max_epi32(x, t.x); }
+
+    inline simd_t<int,8> bitwise_and(simd_t<int,8> t) const     { return _mm256_and_si256(x, t.x); }
+    inline simd_t<int,8> bitwise_or(simd_t<int,8> t) const      { return _mm256_or_si256(x, t.x); }
+    inline simd_t<int,8> bitwise_xor(simd_t<int,8> t) const     { return _mm256_xor_si256(x, t.x); }
+    inline simd_t<int,8> bitwise_andnot(simd_t<int,8> t) const  { return _mm256_andnot_si256(x, t.x); }
 
     template<unsigned int M> inline int extract() const  { return _mm256_extract_epi32(x,M); }
 
