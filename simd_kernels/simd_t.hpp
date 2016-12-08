@@ -16,14 +16,11 @@ template<> struct simd_t<float,4>
     simd_t(__m128 y) { x = y; }
     simd_t(float y)  { x = _mm_set1_ps(y); }
 
-    static simd_t<float,4> zero()  { return _mm_setzero_ps(); }
-    static simd_t<float,4> range() { return _mm_set_ps(3., 2., 1., 0.); }
+    static inline simd_t<float,4> zero()  { return _mm_setzero_ps(); }
+    static inline simd_t<float,4> range() { return _mm_set_ps(3., 2., 1., 0.); }
 
-    inline void set1(float y) { x = _mm_set1_ps(y); }
-    inline void setzero() { x = _mm_setzero_ps(); }
-
-    inline void load(const float *p)  { x = _mm_load_ps(p); }
-    inline void loadu(const float *p) { x = _mm_loadu_ps(p); }
+    static inline simd_t<float,4> load(const float *p)  { return _mm_load_ps(p); }
+    static inline simd_t<float,4> loadu(const float *p) { return _mm_loadu_ps(p); }
 
     inline void store(float *p) const  { _mm_store_ps(p,x); }
     inline void storeu(float *p) const { _mm_storeu_ps(p,x); }
@@ -85,11 +82,8 @@ template<> struct simd_t<float,8>
     static simd_t<float,8> zero()  { return _mm256_setzero_ps(); }
     static simd_t<float,8> range() { return _mm256_set_ps(7., 6., 5., 4., 3., 2., 1., 0.); }
 
-    inline void set1(float y) { x = _mm256_set1_ps(y); }
-    inline void setzero() { x = _mm256_setzero_ps(); }
-
-    inline void load(const float *p)  { x = _mm256_load_ps(p); }
-    inline void loadu(const float *p) { x = _mm256_loadu_ps(p); }
+    static inline simd_t<float,8> load(const float *p)  { return _mm256_load_ps(p); }
+    static inline simd_t<float,8> loadu(const float *p) { return _mm256_loadu_ps(p); }
 
     inline void store(float *p) const  { _mm256_store_ps(p,x); }
     inline void storeu(float *p) const { _mm256_storeu_ps(p,x); }
