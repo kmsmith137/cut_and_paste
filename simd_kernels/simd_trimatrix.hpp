@@ -181,6 +181,20 @@ struct simd_trimatrix {
 	m.decholesky_in_place();
     }
 
+    // Returns 1 if Cholesky factorization succeeded, 0 if poorly conditioned.
+    // FIXME makes sense for T=float, but for T=double will we want to replace int by int64_t?
+    inline simd_t<int,S> cholesky_flagged_in_place(simd_t<T,S> epsilon) const
+    {
+	simd_t<T,S> flags = m.cholesky_flagged_in_place(epsilon);
+	m.solve_lower_in_place(v.v);
+
+	simd_t<T,S> u = v.v._vertical_dotn(v.v, v.x);
+	simd_t<T,S> u0 = epsilon * v.x;
+
+	flags = flags.logical_and(u.compare_gt(u0));
+	v.x = u.max(u0).sqrt();
+    }
+
     inline simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const  { simd_ntuple<T,S,N> ret = t; multiply_lower_in_place(ret); return ret; }
     inline simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const  { simd_ntuple<T,S,N> ret = t; multiply_upper_in_place(ret); return ret; }
     inline simd_ntuple<T,S,N> solve_lower(const simd_ntuple<T,S,N> &t) const     { simd_ntuple<T,S,N> ret = t; solve_lower_in_place(ret); return ret; }
@@ -220,6 +234,8 @@ struct simd_trimatrix<T,S,0>
     inline void horizontal_sum_in_place() { }
     inline void cholesky_in_place() { }
     inline void decholesky_in_place() { }
+
+    inline simd_t<int,S> cholesky_flagged_in_place(simd_t<T,S> epsilon) const { return simd_t<int,S>(1); }
 };
 
 
