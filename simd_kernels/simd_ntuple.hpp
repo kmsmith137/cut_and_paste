@@ -15,7 +15,7 @@ struct simd_ntuple
     inline void setzero()
     {
 	v.setzero();
-	x.setzero();
+	x = simd_t<T,S>::zero();
     }
 
     inline void loadu(const T *p)
@@ -33,7 +33,7 @@ struct simd_ntuple
     inline void set1_slow(const T *p)
     {
 	v.set1_slow(p);
-	x = simd_t<T,S>(p[N-1]);
+	x = p[N-1];
     }
 
     inline simd_ntuple<T,S,N> &operator+=(const simd_ntuple<T,S,N> &t)  { v += t.v; x += t.x; return *this; }
