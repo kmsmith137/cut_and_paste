@@ -7,7 +7,84 @@
 
 template<typename T, unsigned int S> struct simd_t;
 
-    
+
+// -------------------------------------------------------------------------------------------------
+
+
+template<> struct simd_t<int,4>
+{
+    __m128i x;
+
+    simd_t() { }
+    simd_t(__m128i y) { x = y; }
+    simd_t(int y)     { x = _mm_set1_epi32(y); }
+
+    static inline simd_t<int,4> zero()  { return _mm_setzero_si128(); }
+    static inline simd_t<int,4> range() { return _mm_set_epi32(3, 2, 1, 0); }
+
+    static inline simd_t<int,4> load(const int *p)  { return _mm_load_si128((const __m128i *) p); }
+    static inline simd_t<int,4> loadu(const int *p) { return _mm_loadu_si128((const __m128i *) p); }
+
+    inline void store(int *p) const  { _mm_store_si128((__m128i *)p, x); }
+    inline void storeu(int *p) const { _mm_storeu_si128((__m128i *)p, x); }
+
+    inline simd_t<int,4> compare_eq(simd_t<int,4> t) const  { return _mm_cmpeq_epi32(x, t.x); }
+    inline simd_t<int,4> compare_gt(simd_t<int,4> t) const  { return _mm_cmpgt_epi32(x, t.x); }
+    inline simd_t<int,4> compare_lt(simd_t<int,4> t) const  { return _mm_cmplt_epi32(x, t.x); }
+
+    // Note: you might need to call this with the weird-looking syntax
+    //    x.template extract<M> ();
+    template<unsigned int M> inline int extract() const  { return _mm_extract_epi32(x, M); }
+
+    inline simd_t<int,4> horizontal_sum() const
+    {
+	__m128 y = x + _mm_shuffle_epi32(x, 0xb1);   // (2301)_4 = 0xb1
+	return y + _mm_shuffle_epi32(y, 0x4e);       // (1032)_4 = 0x4e
+    }
+
+    inline int sum() const { return _mm_extract_epi32(horizontal_sum().x, 0); }
+};
+
+
+// -------------------------------------------------------------------------------------------------
+
+
+template<> struct simd_t<int,8>
+{
+    __m256i x;
+
+    simd_t() { }
+    simd_t(__m256i y) { x = y; }
+    simd_t(int y)     { x = _mm256_set1_epi32(y); }
+
+    static inline simd_t<int,8> zero()  { return _mm256_setzero_si256(); }
+    static inline simd_t<int,8> range() { return _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0); }
+
+    static inline simd_t<int,8> load(const int *p)  { return _mm256_load_si256((const __m256i *) p); }
+    static inline simd_t<int,8> loadu(const int *p) { return _mm256_loadu_si256((const __m256i *) p); }
+
+    inline void store(int *p) const  { _mm256_store_si256((__m256i *)p, x); }
+    inline void storeu(int *p) const { _mm256_storeu_si256((__m256i *)p, x); }
+
+    inline simd_t<int,8> compare_eq(simd_t<int,8> t) const  { return _mm256_cmpeq_epi32(x, t.x); }
+    inline simd_t<int,8> compare_gt(simd_t<int,8> t) const  { return _mm256_cmpgt_epi32(x, t.x); }
+
+    template<unsigned int M> inline int extract() const  { return _mm256_extract_epi32(x,M); }
+
+    inline simd_t<int,8> horizontal_sum() const
+    {
+	__m256 y = x + _mm256_shuffle_epi32(x, 0xb1);   // (2301)_4 = 0xb1
+	y += _mm256_shuffle_epi32(y, 0x4e);             // (1032)_4 = 0x4e
+	return y + _mm256_permute2f128_si256(y, y, 0x01);
+    }
+
+    inline int sum() const { return _mm256_extract_epi32(horizontal_sum().x, 0); }
+};
+
+
+// -------------------------------------------------------------------------------------------------
+
+
 template<> struct simd_t<float,4>
 {
     __m128 x;
@@ -28,10 +105,20 @@ template<> struct simd_t<float,4>
     inline simd_t<float,4> sqrt() const { return _mm_sqrt_ps(x); }
     inline simd_t<float,4> rsqrt() const { return _mm_rsqrt_ps(x); }
 
+    // Comparison operators.
+    // Note: the output of a comparison is -1 (0xff..) for "true" or 0 for "false".
+    // Note: these are quiet ordered comparisons (e.g. NaN==NaN evaluates to "false")
+
+    inline simd_t<int,4> compare_eq(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmpeq_ps(x, t.x)); }
+    inline simd_t<int,4> compare_ne(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmpneq_ps(x, t.x)); }
+    inline simd_t<int,4> compare_ge(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmpge_ps(x, t.x)); }
+    inline simd_t<int,4> compare_gt(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmpgt_ps(x, t.x)); }
+    inline simd_t<int,4> compare_le(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmple_ps(x, t.x)); }
+    inline simd_t<int,4> compare_lt(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmplt_ps(x, t.x)); }
+
     template<unsigned int M> 
     inline float extract() const
     {
-	// _mm_extract_ps() returns int instead of float
 	union { int i; float x; } u;
 	u.i = _mm_extract_ps(x, M);
 	return u.x;
@@ -50,25 +137,10 @@ template<> struct simd_t<float,4>
 	simd_t<float,4> y = this->horizontal_sum();
 	return y.extract<0> ();
     }
-
-    inline std::string str(bool bracket=true) const
-    {
-	std::stringstream ss;
-	
-	if (bracket)
-	    ss << "[ ";
-
-	ss << this->extract<0>() << ", "
-	   << this->extract<1>() << ", "
-	   << this->extract<2>() << ", "
-	   << this->extract<3>();
-
-	if (bracket)
-	    ss << " ]";
-
-	return ss.str();
-    }
 };
+
+
+// -------------------------------------------------------------------------------------------------
 
 
 template<> struct simd_t<float,8>
@@ -90,6 +162,13 @@ template<> struct simd_t<float,8>
 
     inline simd_t<float,8> sqrt() const { return _mm256_sqrt_ps(x); }
     inline simd_t<float,8> rsqrt() const { return _mm256_rsqrt_ps(x); }
+
+    inline simd_t<float,8> compare_eq(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_EQ_OQ); }
+    inline simd_t<float,8> compare_ne(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_NEQ_OQ); }
+    inline simd_t<float,8> compare_ge(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_GE_OQ); }
+    inline simd_t<float,8> compare_gt(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_GT_OQ); }
+    inline simd_t<float,8> compare_le(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_LE_OQ); }
+    inline simd_t<float,8> compare_lt(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_LT_OQ); }
 
     template<unsigned int M> 
     inline float extract() const
@@ -113,24 +192,6 @@ template<> struct simd_t<float,8>
 
 	simd_t<float,4> z = _mm256_extractf128_ps(y, 0);
 	return z.sum();
-    }
-
-    std::string str(bool bracket=true) const
-    {
-	simd_t<float,4> x0 = _mm256_extractf128_ps(x, 0);
-	simd_t<float,4> x1 = _mm256_extractf128_ps(x, 1);
-
-	std::stringstream ss;
-	
-	if (bracket)
-	    ss << "[ ";
-
-	ss << x0.str(false) << ", " << x1.str(false);
-
-	if (bracket)
-	    ss << " ]";
-
-	return ss.str();
     }
 };
 
