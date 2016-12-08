@@ -145,25 +145,11 @@ struct simd_trimatrix {
 	this->m.multiply_lower_in_place(t.v);
     }
 
-    inline simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
-    {
-	simd_ntuple<T,S,N> ret = t;
-	this->multiply_lower_in_place(ret);
-	return ret;
-    }
-
     inline void multiply_upper_in_place(simd_ntuple<T,S,N> &t) const
     {
 	this->m.multiply_upper_in_place(t.v);
 	t.v += this->v.v * t.x;
 	t.x *= this->v.x;
-    }
-
-    inline simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const
-    {
-	simd_ntuple<T,S,N> ret = t;
-	this->multiply_upper_in_place(ret);
-	return ret;
     }
 
     inline void solve_lower_in_place(simd_ntuple<T,S,N> &t) const
@@ -172,25 +158,11 @@ struct simd_trimatrix {
 	t.x = this->v.v._vertical_dotn(t.v, t.x) / this->v.x;
     }
 
-    inline simd_ntuple<T,S,N> solve_lower(const simd_ntuple<T,S,N> &t) const
-    {
-	simd_ntuple<T,S,N> ret = t;
-	this->solve_lower_in_place(ret);
-	return ret;
-    }
-
     inline void solve_upper_in_place(simd_ntuple<T,S,N> &t) const
     {
 	t.x /= this->v.x;
 	t.v -= this->v.v * t.x;
 	this->m.solve_upper_in_place(t.v);
-    }
-
-    inline simd_ntuple<T,S,N> solve_upper(const simd_ntuple<T,S,N> &t) const
-    {
-	simd_ntuple<T,S,N> ret = t;
-	this->solve_upper_in_place(ret);
-	return ret;
     }
 
     inline void cholesky_in_place()
@@ -202,13 +174,6 @@ struct simd_trimatrix {
 	v.x = u.sqrt();
     }
 
-    inline simd_trimatrix<T,S,N> cholesky()
-    {
-	simd_trimatrix<T,S,N> ret = *this;
-	ret.cholesky_in_place();
-	return ret;
-    }
-
     inline void decholesky_in_place()
     {
 	v.x = v.vertical_dot(v);
@@ -216,12 +181,13 @@ struct simd_trimatrix {
 	m.decholesky_in_place();
     }
 
-    inline simd_trimatrix<T,S,N> decholesky()
-    {
-	simd_trimatrix<T,S,N> ret = *this;
-	ret.decholesky_in_place();
-	return ret;
-    }
+    inline simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const  { simd_ntuple<T,S,N> ret = t; multiply_lower_in_place(ret); return ret; }
+    inline simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const  { simd_ntuple<T,S,N> ret = t; multiply_upper_in_place(ret); return ret; }
+    inline simd_ntuple<T,S,N> solve_lower(const simd_ntuple<T,S,N> &t) const     { simd_ntuple<T,S,N> ret = t; solve_lower_in_place(ret); return ret; }
+    inline simd_ntuple<T,S,N> solve_upper(const simd_ntuple<T,S,N> &t) const     { simd_ntuple<T,S,N> ret = t; solve_upper_in_place(ret); return ret; }
+
+    inline simd_trimatrix<T,S,N> cholesky() const    { simd_trimatrix<T,S,N> ret = *this; ret.cholesky_in_place(); return ret; }    
+    inline simd_trimatrix<T,S,N> decholesky() const  { simd_trimatrix<T,S,N> ret = *this; ret.decholesky_in_place(); return ret; }    
 };
 
 
