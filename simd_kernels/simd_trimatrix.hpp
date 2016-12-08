@@ -130,24 +130,6 @@ struct simd_trimatrix {
     }
 
     // In-register linear algebra inlines start here.
-    // Note: "in place" versions of multiply_*() and solve_*() would be easy to implement if needed.
-
-    inline simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
-    {
-	simd_ntuple<T,S,N> ret;
-	ret.x = this->v.vertical_dot(t);
-	ret.v = this->m.multiply_lower(t.v);
-	return ret;
-    }
-
-    inline simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const
-    {
-	simd_ntuple<T,S,N> ret;
-	ret.v = this->m.multiply_upper(t.v);
-	ret.v += this->v.v * t.x;
-	ret.x = this->v.x * t.x;
-	return ret;
-    }
 
     inline simd_ntuple<T,S,N> multiply_symmetric(const simd_ntuple<T,S,N> &t) const
     {
@@ -157,26 +139,64 @@ struct simd_trimatrix {
 	return ret;
     }
 
+    inline void multiply_lower_in_place(simd_ntuple<T,S,N> &t) const
+    {
+	t.x = this->v.vertical_dot(t);
+	this->m.multiply_lower_in_place(t.v);
+    }
+
+    inline simd_ntuple<T,S,N> multiply_lower(const simd_ntuple<T,S,N> &t) const
+    {
+	simd_ntuple<T,S,N> ret = t;
+	this->multiply_lower_in_place(ret);
+	return ret;
+    }
+
+    inline void multiply_upper_in_place(simd_ntuple<T,S,N> &t) const
+    {
+	this->m.multiply_upper_in_place(t.v);
+	t.v += this->v.v * t.x;
+	t.x *= this->v.x;
+    }
+
+    inline simd_ntuple<T,S,N> multiply_upper(const simd_ntuple<T,S,N> &t) const
+    {
+	simd_ntuple<T,S,N> ret = t;
+	this->multiply_upper_in_place(ret);
+	return ret;
+    }
+
+    inline void solve_lower_in_place(simd_ntuple<T,S,N> &t) const
+    {
+	this->m.solve_lower_in_place(t.v);
+	t.x = this->v.v._vertical_dotn(t.v, t.x) / this->v.x;
+    }
+
     inline simd_ntuple<T,S,N> solve_lower(const simd_ntuple<T,S,N> &t) const
     {
-	simd_ntuple<T,S,N> ret;
-	ret.v = this->m.solve_lower(t.v);
-	ret.x = this->v.v._vertical_dotn(ret.v, t.x) / this->v.x;
+	simd_ntuple<T,S,N> ret = t;
+	this->solve_lower_in_place(ret);
 	return ret;
+    }
+
+    inline void solve_upper_in_place(simd_ntuple<T,S,N> &t) const
+    {
+	t.x /= this->v.x;
+	t.v -= this->v.v * t.x;
+	this->m.solve_upper_in_place(t.v);
     }
 
     inline simd_ntuple<T,S,N> solve_upper(const simd_ntuple<T,S,N> &t) const
     {
-	simd_ntuple<T,S,N> ret;
-	ret.x = t.x / this->v.x;
-	ret.v = this->m.solve_upper(t.v - this->v.v * ret.x);
+	simd_ntuple<T,S,N> ret = t;
+	this->solve_upper_in_place(ret);
 	return ret;
     }
 
     inline void cholesky_in_place()
     {
 	m.cholesky_in_place();
-	v.v = m.solve_lower(v.v);
+	m.solve_lower_in_place(v.v);
 	
 	simd_t<T,S> u = v.v._vertical_dotn(v.v, v.x);
 	v.x = u.sqrt();
@@ -192,7 +212,7 @@ struct simd_trimatrix {
     inline void decholesky_in_place()
     {
 	v.x = v.vertical_dot(v);
-	v.v = m.multiply_lower(v.v);
+	m.multiply_lower_in_place(v.v);
 	m.decholesky_in_place();
     }
 
@@ -225,11 +245,11 @@ struct simd_trimatrix<T,S,0>
 
     inline simd_t<T,S> _vertical_sum(simd_t<T,S> x) const { return x; }
 
-    inline simd_ntuple<T,S,0> multiply_lower(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
-    inline simd_ntuple<T,S,0> multiply_upper(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
+    inline simd_ntuple<T,S,0> multiply_lower_in_place(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
+    inline simd_ntuple<T,S,0> multiply_upper_in_place(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
     inline simd_ntuple<T,S,0> multiply_symmetric(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
-    inline simd_ntuple<T,S,0> solve_lower(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
-    inline simd_ntuple<T,S,0> solve_upper(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
+    inline simd_ntuple<T,S,0> solve_lower_in_place(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
+    inline simd_ntuple<T,S,0> solve_upper_in_place(const simd_ntuple<T,S,0> &t) const { return simd_ntuple<T,S,0> (); }
 
     inline void horizontal_sum_in_place() { }
     inline void cholesky_in_place() { }
