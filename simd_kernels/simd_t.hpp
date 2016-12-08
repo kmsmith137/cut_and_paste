@@ -32,6 +32,9 @@ template<> struct simd_t<int,4>
     inline simd_t<int,4> compare_gt(simd_t<int,4> t) const  { return _mm_cmpgt_epi32(x, t.x); }
     inline simd_t<int,4> compare_lt(simd_t<int,4> t) const  { return _mm_cmplt_epi32(x, t.x); }
 
+    inline simd_t<int,4> min(simd_t<int,4> t) const { return _mm_min_epi32(x, t.x); }
+    inline simd_t<int,4> max(simd_t<int,4> t) const { return _mm_max_epi32(x, t.x); }
+
     // Note: you might need to call this with the weird-looking syntax
     //    x.template extract<M> ();
     template<unsigned int M> inline int extract() const  { return _mm_extract_epi32(x, M); }
@@ -43,6 +46,7 @@ template<> struct simd_t<int,4>
     }
 
     inline int sum() const { return _mm_extract_epi32(horizontal_sum().x, 0); }
+
 };
 
 
@@ -68,6 +72,9 @@ template<> struct simd_t<int,8>
 
     inline simd_t<int,8> compare_eq(simd_t<int,8> t) const  { return _mm256_cmpeq_epi32(x, t.x); }
     inline simd_t<int,8> compare_gt(simd_t<int,8> t) const  { return _mm256_cmpgt_epi32(x, t.x); }
+
+    inline simd_t<int,8> min(simd_t<int,8> t) const { return _mm256_min_epi32(x, t.x); }
+    inline simd_t<int,8> max(simd_t<int,8> t) const { return _mm256_max_epi32(x, t.x); }
 
     template<unsigned int M> inline int extract() const  { return _mm256_extract_epi32(x,M); }
 
@@ -115,6 +122,9 @@ template<> struct simd_t<float,4>
     inline simd_t<int,4> compare_gt(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmpgt_ps(x, t.x)); }
     inline simd_t<int,4> compare_le(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmple_ps(x, t.x)); }
     inline simd_t<int,4> compare_lt(simd_t<float,4> t) const  { return _mm_castps_si128(_mm_cmplt_ps(x, t.x)); }
+
+    inline simd_t<float,4> min(simd_t<float,4> t) const { return _mm_min_ps(x, t.x); }
+    inline simd_t<float,4> max(simd_t<float,4> t) const { return _mm_max_ps(x, t.x); }
 
     template<unsigned int M> 
     inline float extract() const
@@ -169,6 +179,9 @@ template<> struct simd_t<float,8>
     inline simd_t<float,8> compare_gt(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_GT_OQ); }
     inline simd_t<float,8> compare_le(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_LE_OQ); }
     inline simd_t<float,8> compare_lt(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_LT_OQ); }
+
+    inline simd_t<float,8> min(simd_t<float,8> t) const { return _mm256_min_ps(x, t.x); }
+    inline simd_t<float,8> max(simd_t<float,8> t) const { return _mm256_max_ps(x, t.x); }
 
     template<unsigned int M> 
     inline float extract() const
