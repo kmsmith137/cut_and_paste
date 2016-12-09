@@ -190,9 +190,9 @@ struct simd_trimatrix {
 
     // Returns 1 if Cholesky factorization succeeded, 0 if poorly conditioned.
     // FIXME makes sense for T=float, but for T=double will we want to replace int by int64_t?
-    inline simd_t<int,S> cholesky_flagged_in_place(simd_t<T,S> epsilon)
+    inline simd_t<int,S> cholesky_in_place_checked(simd_t<T,S> epsilon)
     {
-	simd_t<int,S> flags = m.cholesky_flagged_in_place(epsilon);
+	simd_t<int,S> flags = m.cholesky_in_place_checked(epsilon);
 	m.solve_lower_in_place(v.v);
 
 	simd_t<T,S> u = v.v._vertical_dotn(v.v, v.x);
@@ -244,7 +244,7 @@ struct simd_trimatrix<T,S,0>
     inline void cholesky_in_place() { }
     inline void decholesky_in_place() { }
 
-    inline simd_t<int,S> cholesky_flagged_in_place(simd_t<T,S> epsilon) { return simd_t<int,S>(1); }
+    inline simd_t<int,S> cholesky_in_place_checked(simd_t<T,S> epsilon) { return simd_t<int,S>(1); }
 };
 
 

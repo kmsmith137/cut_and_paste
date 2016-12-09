@@ -170,7 +170,7 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
 
     // cholseky_flagged_in_place(), in case where all matrices are positive definite
     simd_trimatrix<T,S,N> m3 = p;
-    simd_t<int,S> flags = m3.cholesky_flagged_in_place(1.0e-3);
+    simd_t<int,S> flags = m3.cholesky_in_place_checked(1.0e-3);
     int all_true = flags.compare_eq(1).test_all_ones();
     epsilon = m3.compare(m);
     assert(epsilon < 1.0e-6);
@@ -202,7 +202,7 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
 
     simd_trimatrix<T,S,N> m4 = pack_simd_trimatrix<T,S,N> (v_p);
     
-    simd_t<int,S> actual_flags = m4.cholesky_flagged_in_place(1.0e-2);
+    simd_t<int,S> actual_flags = m4.cholesky_in_place_checked(1.0e-2);
     simd_t<int,S> flag_agreement = actual_flags.compare_eq(target_flags);
     assert(flag_agreement.test_all_ones());
 
