@@ -96,11 +96,6 @@ struct simd_ntuple
 	b.loadu(p);
 	return this->compare(b);
     }
-
-    inline std::string str(bool incomplete=false) const
-    {
-	return v.str(true) + x.str() + (incomplete ? ", " : ")");
-    }
 };
 
 
@@ -140,8 +135,6 @@ struct simd_ntuple<T,S,0>
     inline simd_t<T,S> _vertical_dotn(const simd_ntuple<T,S,0> &t, simd_t<T,S> u) const { return u; }
 
     inline void horizontal_sum_in_place() { }
-
-    inline std::string str(bool incomplete) const { return incomplete ? "(" : "()"; }
 };
 
 
