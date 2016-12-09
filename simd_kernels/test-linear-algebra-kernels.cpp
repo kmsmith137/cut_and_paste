@@ -92,31 +92,31 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
     // multiply_lower()
     simd_ntuple<T,S,N> w = m.multiply_lower(v);
     vector<T> wbuf = reference_multiply_lower(vectorize(m), vectorize(v), S, N);
-    double epsilon = w.compare(&wbuf[0]);
+    double epsilon = compare(vectorize(w), wbuf);
     assert(epsilon < 1.0e-6);
     
     // multiply_upper()
     w = m.multiply_upper(v);
     wbuf = reference_multiply_upper(vectorize(m), vectorize(v), S, N);
-    epsilon = w.compare(&wbuf[0]);
+    epsilon = compare(vectorize(w), wbuf);
     assert(epsilon < 1.0e-6);
     
     // multiply_symmetric()
     w = m.multiply_symmetric(v);
     wbuf = reference_multiply_symmetric(vectorize(m), vectorize(v), S, N);
-    epsilon = w.compare(&wbuf[0]);
+    epsilon = compare(vectorize(w), wbuf);
     assert(epsilon < 1.0e-6);
 
     // solve_lower()
     w = m.solve_lower(v);
     x = m.multiply_lower(w);
-    epsilon = x.compare(v);
+    epsilon = compare(vectorize(v), vectorize(x));
     assert(epsilon < 1.0e-6);
 
     // solve_upper()
     w = m.solve_upper(v);
     x = m.multiply_upper(w);
-    epsilon = x.compare(v);
+    epsilon = compare(vectorize(v), vectorize(x));
     assert(epsilon < 1.0e-6);
 
     // decholesky()
@@ -124,19 +124,19 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
     w = p.multiply_symmetric(v);
     x = m.multiply_upper(v);
     x = m.multiply_lower(x);
-    epsilon = x.compare(w);
+    epsilon = compare(vectorize(w), vectorize(x));
     assert(epsilon < 1.0e-6);
 
     // cholesky()
     simd_trimatrix<T,S,N> m2 = p.cholesky();
-    epsilon = m2.compare(m);
+    epsilon = compare(vectorize(m), vectorize(m2));
     assert(epsilon < 1.0e-6);
 
     // cholseky_flagged_in_place(), in case where all matrices are positive definite
     simd_trimatrix<T,S,N> m3 = p;
     simd_t<int,S> flags = m3.cholesky_in_place_checked(1.0e-3);
     int all_true = flags.compare_eq(1).test_all_ones();
-    epsilon = m3.compare(m);
+    epsilon = compare(vectorize(m), vectorize(m3));
     assert(epsilon < 1.0e-6);
     assert(all_true);
 

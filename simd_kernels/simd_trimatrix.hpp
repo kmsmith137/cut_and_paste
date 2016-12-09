@@ -116,26 +116,6 @@ struct simd_trimatrix {
     // sum(): returns sum of all scalar elements in the matrix
     inline T sum() const { return this->vertical_sum().sum(); }
 
-    inline T compare(const simd_trimatrix<T,S,N> &b) const
-    {
-	const simd_trimatrix<T,S,N> &a = *this;
-
-	simd_trimatrix<T,S,N> t = (a-b);
-	float num = (t*t).sum();
-	
-	t = a*a + b*b;
-	float den = t.sum();
-	
-	return (den > 0.0) ? sqrt(num/den) : 0.0;
-    }
-
-    inline T compare(const T *p) const
-    {
-	simd_trimatrix<T,S,N> b;
-	b.loadu(p);
-	return this->compare(b);
-    }
-
     // In-register linear algebra inlines start here.
 
     inline simd_ntuple<T,S,N> multiply_symmetric(const simd_ntuple<T,S,N> &t) const

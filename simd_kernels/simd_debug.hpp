@@ -70,6 +70,26 @@ inline simd_trimatrix<T,S,N> pack_simd_trimatrix(const std::vector<T> &v)
 }
 
 
+// this is often useful in conjunction with vectorize()
+template<typename T>
+inline T compare(const std::vector<T> &v, const std::vector<T> &w)
+{
+    assert(v.size() == w.size());
+
+    T num = 0;
+    T den = 0;
+    
+    for (unsigned int i = 0; i < v.size(); i++) {
+	T x = v[i];
+	T y = w[i];
+	num += (x-y)*(x-y);
+	den += x*x + y*y;
+    }
+
+    return (den > 0) ? sqrt(num/den) : 0;
+}
+
+
 // -------------------------------------------------------------------------------------------------
 //
 // Randomizers.

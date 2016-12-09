@@ -76,26 +76,6 @@ struct simd_ntuple
 
     // sum(): returns sum of all scalars in the simd_ntuple
     inline T sum() const { return this->vertical_sum().sum(); }
-
-    inline T compare(const simd_ntuple<T,S,N> &b) const
-    {
-	const simd_ntuple<T,S,N> &a = *this;
-	
-	simd_ntuple<T,S,N> t = (a-b);
-	float num = (t*t).sum();
-	
-	t = a*a + b*b;
-	float den = t.sum();
-	
-	return (den > 0.0) ? sqrt(num/den) : 0.0;
-    }
-
-    inline T compare(const T *p) const
-    {
-	simd_ntuple<T,S,N> b;
-	b.loadu(p);
-	return this->compare(b);
-    }
 };
 
 
