@@ -1,5 +1,7 @@
 #include <iostream>
 #include "simd_t.hpp"
+#include "simd_ntuple.hpp"
+#include "simd_trimatrix.hpp"
 
 
 template<class T, unsigned int S, unsigned int M>
