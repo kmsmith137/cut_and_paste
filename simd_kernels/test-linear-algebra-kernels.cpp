@@ -9,36 +9,8 @@
 using namespace std;
 
 
-template<typename T, unsigned int S, unsigned int N>
-void randomize_vector(std::mt19937 &rng, simd_ntuple<T,S,N> &v, vector<T> &buf)
-{
-    buf.resize(N*S);
-    gaussian_rand(rng, &buf[0], N*S);
-    v.loadu(&buf[0]);
-}
-
-
-template<typename T, unsigned int S, unsigned int N>
-void randomize_triangular_matrix(std::mt19937 &rng, simd_trimatrix<T,S,N> &m, vector<T> &buf)
-{
-    int NN = (N*(N+1))/2;
-    buf.resize(NN*S);
-
-    for (int i = 0; i < N; i++) {
-	int j = (i*(i+1)*S) / 2;
-	gaussian_rand(rng, &buf[j], i*S);
-	uniform_rand(rng, &buf[j+i*S], S, 5.0, 10.0);
-    }
-
-    m.loadu(&buf[0]);
-}
-
-
-// -------------------------------------------------------------------------------------------------
-
-
 template<typename T>
-static vector<T> reference_multiply_lower(vector<T> &mat, vector<T> &v, int S, int N)
+static vector<T> reference_multiply_lower(const vector<T> &mat, const vector<T> &v, int S, int N)
 {
     int NN = (N*(N+1))/2;
     assert(mat.size() == NN*S);
@@ -59,7 +31,7 @@ static vector<T> reference_multiply_lower(vector<T> &mat, vector<T> &v, int S, i
 
 
 template<typename T>
-static vector<T> reference_multiply_upper(vector<T> &mat, vector<T> &v, int S, int N)
+static vector<T> reference_multiply_upper(const vector<T> &mat, const vector<T> &v, int S, int N)
 {
     int NN = (N*(N+1))/2;
     assert(mat.size() == NN*S);
@@ -80,7 +52,7 @@ static vector<T> reference_multiply_upper(vector<T> &mat, vector<T> &v, int S, i
 
 
 template<typename T>
-static vector<T> reference_multiply_symmetric(vector<T> &mat, vector<T> &v, int S, int N)
+static vector<T> reference_multiply_symmetric(const vector<T> &mat, const vector<T> &v, int S, int N)
 {
     int NN = (N*(N+1))/2;
     assert(mat.size() == NN*S);
@@ -113,33 +85,25 @@ static vector<T> reference_multiply_symmetric(vector<T> &mat, vector<T> &v, int 
 template<typename T, unsigned int S, unsigned int N>
 void test_linear_algebra_kernels_N(std::mt19937 &rng)
 {
-    vector<T> mbuf;
-    simd_trimatrix<T,S,N> m;
-    randomize_triangular_matrix(rng, m, mbuf);
-    
-    vector<T> vbuf;
-    simd_ntuple<T,S,N> v;
-    randomize_vector(rng, v, vbuf);
-
-    vector<T> wbuf;
-    simd_ntuple<T,S,N> w, x;
-    double epsilon;
+    simd_trimatrix<T,S,N> m = random_simd_trimatrix<T,S,N> (rng);
+    simd_ntuple<T,S,N> v = gaussian_random_simd_ntuple<T,S,N> (rng);
+    simd_ntuple<T,S,N> x;
 
     // multiply_lower()
-    w = m.multiply_lower(v);
-    wbuf = reference_multiply_lower(mbuf, vbuf, S, N);
-    epsilon = w.compare(&wbuf[0]);
+    simd_ntuple<T,S,N> w = m.multiply_lower(v);
+    vector<T> wbuf = reference_multiply_lower(vectorize(m), vectorize(v), S, N);
+    double epsilon = w.compare(&wbuf[0]);
     assert(epsilon < 1.0e-6);
     
     // multiply_upper()
     w = m.multiply_upper(v);
-    wbuf = reference_multiply_upper(mbuf, vbuf, S, N);
+    wbuf = reference_multiply_upper(vectorize(m), vectorize(v), S, N);
     epsilon = w.compare(&wbuf[0]);
     assert(epsilon < 1.0e-6);
     
     // multiply_symmetric()
     w = m.multiply_symmetric(v);
-    wbuf = reference_multiply_symmetric(mbuf, vbuf, S, N);
+    wbuf = reference_multiply_symmetric(vectorize(m), vectorize(v), S, N);
     epsilon = w.compare(&wbuf[0]);
     assert(epsilon < 1.0e-6);
 
