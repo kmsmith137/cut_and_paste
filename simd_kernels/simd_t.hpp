@@ -28,6 +28,7 @@ template<> struct simd_t<int,4>
     inline void store(int *p) const  { _mm_store_si128((__m128i *)p, x); }
     inline void storeu(int *p) const { _mm_storeu_si128((__m128i *)p, x); }
 
+    // The comparison operators return all ones (0xff..) if "true".
     inline simd_t<int,4> compare_eq(simd_t<int,4> t) const  { return _mm_cmpeq_epi32(x, t.x); }
     inline simd_t<int,4> compare_gt(simd_t<int,4> t) const  { return _mm_cmpgt_epi32(x, t.x); }
     inline simd_t<int,4> compare_lt(simd_t<int,4> t) const  { return _mm_cmplt_epi32(x, t.x); }
@@ -40,6 +41,11 @@ template<> struct simd_t<int,4>
     inline simd_t<int,4> bitwise_xor(simd_t<int,4> t) const     { return _mm_xor_si128(x, t.x); }
     inline simd_t<int,4> bitwise_andnot(simd_t<int,4> t) const  { return _mm_andnot_si128(x, t.x); }
 
+    inline int testzero_bitwise_and(simd_t<int,4> t) const     { return _mm_testz_si128(x, t.x); }
+    inline int testzero_bitwise_andnot(simd_t<int,4> t) const  { return _mm_testc_si128(t.x, x); }
+    inline int test_all_zeros() const                          { return _mm_testz_si128(x, x); }
+    inline int test_all_ones() const                           { return _mm_test_all_ones(x); }
+
     // Note: you might need to call this with the weird-looking syntax
     //    x.template extract<M> ();
     template<unsigned int M> inline int extract() const  { return _mm_extract_epi32(x, M); }
@@ -51,7 +57,6 @@ template<> struct simd_t<int,4>
     }
 
     inline int sum() const { return _mm_extract_epi32(horizontal_sum().x, 0); }
-
 };
 
 
@@ -85,6 +90,11 @@ template<> struct simd_t<int,8>
     inline simd_t<int,8> bitwise_or(simd_t<int,8> t) const      { return _mm256_or_si256(x, t.x); }
     inline simd_t<int,8> bitwise_xor(simd_t<int,8> t) const     { return _mm256_xor_si256(x, t.x); }
     inline simd_t<int,8> bitwise_andnot(simd_t<int,8> t) const  { return _mm256_andnot_si256(x, t.x); }
+
+    inline int testzero_bitwise_and(simd_t<int,8> t) const     { return _mm256_testz_si256(x, t.x); }
+    inline int testzero_bitwise_andnot(simd_t<int,8> t) const  { return _mm256_testc_si256(t.x, x); }
+    inline int test_all_zeros() const                          { return _mm256_testz_si256(x, x); }
+    inline int test_all_ones() const                           { return _mm256_testc_si256(x, _mm256_set1_epi32(-1)); }
 
     template<unsigned int M> inline int extract() const  { return _mm256_extract_epi32(x,M); }
 
@@ -183,12 +193,12 @@ template<> struct simd_t<float,8>
     inline simd_t<float,8> sqrt() const { return _mm256_sqrt_ps(x); }
     inline simd_t<float,8> rsqrt() const { return _mm256_rsqrt_ps(x); }
 
-    inline simd_t<float,8> compare_eq(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_EQ_OQ); }
-    inline simd_t<float,8> compare_ne(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_NEQ_OQ); }
-    inline simd_t<float,8> compare_ge(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_GE_OQ); }
-    inline simd_t<float,8> compare_gt(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_GT_OQ); }
-    inline simd_t<float,8> compare_le(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_LE_OQ); }
-    inline simd_t<float,8> compare_lt(simd_t<float,8> t) const  { return _mm256_cmp_ps(x, t.x, _CMP_LT_OQ); }
+    inline simd_t<int,8> compare_eq(simd_t<float,8> t) const  { return _mm256_castps_si256(_mm256_cmp_ps(x, t.x, _CMP_EQ_OQ)); }
+    inline simd_t<int,8> compare_ne(simd_t<float,8> t) const  { return _mm256_castps_si256(_mm256_cmp_ps(x, t.x, _CMP_NEQ_OQ)); }
+    inline simd_t<int,8> compare_ge(simd_t<float,8> t) const  { return _mm256_castps_si256(_mm256_cmp_ps(x, t.x, _CMP_GE_OQ)); }
+    inline simd_t<int,8> compare_gt(simd_t<float,8> t) const  { return _mm256_castps_si256(_mm256_cmp_ps(x, t.x, _CMP_GT_OQ)); }
+    inline simd_t<int,8> compare_le(simd_t<float,8> t) const  { return _mm256_castps_si256(_mm256_cmp_ps(x, t.x, _CMP_LE_OQ)); }
+    inline simd_t<int,8> compare_lt(simd_t<float,8> t) const  { return _mm256_castps_si256(_mm256_cmp_ps(x, t.x, _CMP_LT_OQ)); }
 
     inline simd_t<float,8> min(simd_t<float,8> t) const { return _mm256_min_ps(x, t.x); }
     inline simd_t<float,8> max(simd_t<float,8> t) const { return _mm256_max_ps(x, t.x); }
