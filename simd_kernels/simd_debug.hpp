@@ -12,6 +12,7 @@
 // -------------------------------------------------------------------------------------------------
 //
 // vectorize(): unpacks a simd type to a std::vector
+// pack_simd_xx(): converts a std::vector back to a simd type
 
 
 template<typename T, unsigned int S>
@@ -35,8 +36,36 @@ inline std::vector<T> vectorize(const simd_ntuple<T,S,N> &v)
 template<typename T, unsigned int S, unsigned int N>
 inline std::vector<T> vectorize(const simd_trimatrix<T,S,N> &m)
 {
-    std::vector<T> ret((N*(N-1)*S)/2);
+    std::vector<T> ret((N*(N+1)*S)/2);
     m.storeu(&ret[0]);
+    return ret;
+}
+
+
+template<typename T, unsigned int S>
+inline simd_t<T,S> pack_simd_t(const std::vector<T> &v)
+{
+    assert(v.size() == S);
+    return simd_t<T,S>::loadu(&v[0]);
+}
+
+
+template<typename T, unsigned int S, unsigned int N>
+inline simd_ntuple<T,S,N> pack_simd_ntuple(const std::vector<T> &v)
+{
+    assert(v.size() == N*S);
+    simd_ntuple<T,S,N> ret;
+    ret.loadu(&v[0]);
+    return ret;
+}
+
+
+template<typename T, unsigned int S, unsigned int N>
+inline simd_trimatrix<T,S,N> pack_simd_trimatrix(const std::vector<T> &v)
+{
+    assert(v.size() == (N*(N+1)*S)/2);
+    simd_trimatrix<T,S,N> ret;
+    ret.loadu(&v[0]);
     return ret;
 }
 
@@ -76,22 +105,44 @@ inline std::vector<T> _uniform_randvec(std::mt19937 &rng, unsigned int n, T lo, 
     return ret;
 }
 
-
 template<typename T, unsigned int S>
 inline simd_t<T,S> uniform_random_simd_t(std::mt19937 &rng, T lo, T hi)
 {
-    std::vector<T> v = _uniform_randvec<T> (rng, S, lo, hi);
-    return simd_t<T,S>::loadu(&v[0]);
+    return pack_simd_t<T,S> (_uniform_randvec<T> (rng, S, lo, hi));
 }
 
 template<typename T, unsigned int S, unsigned int N>
 inline simd_ntuple<T,S,N> uniform_random_simd_ntuple(std::mt19937 &rng, T lo, T hi)
 {
-    std::vector<T> v = _uniform_randvec<T> (rng, N*S, lo, hi);
-    simd_ntuple<T,S,N> ret;
-    ret.loadu(&v[0]);
+    return pack_simd_ntuple<T,S,N> (_uniform_randvec<T> (rng, N*S, lo, hi));
+}
+
+
+// _gaussian_randvec(): defined only in floating-point case
+template<typename T, typename std::enable_if<std::is_floating_point<T>::value,int>::type = 0>
+inline std::vector<T> _gaussian_randvec(std::mt19937 &rng, unsigned int n)
+{
+    std::normal_distribution<> dist;
+
+    std::vector<T> ret(n);
+    for (unsigned int i = 0; i < n; i++)
+	ret[i] = dist(rng);
+
     return ret;
 }
+
+template<typename T, unsigned int S>
+inline simd_t<T,S> gaussian_random_simd_t(std::mt19937 &rng)
+{
+    return pack_simd_t(_gaussian_randvec<T> (rng, S));
+}
+
+template<typename T, unsigned int S, unsigned int N>
+inline simd_ntuple<T,S,N> gaussian_random_simd_ntuple(std::mt19937 &rng)
+{
+    return pack_simd_ntuple(_uniform_randvec<T> (rng, N*S));
+}
+
 
 
 // -------------------------------------------------------------------------------------------------
