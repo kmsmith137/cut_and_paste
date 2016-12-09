@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "../random.hpp"
-#include "simd_trimatrix.hpp"
+#include "simd_debug.hpp"
 
 using namespace std;
 
@@ -166,6 +166,65 @@ void test_linear_algebra_kernels_N(std::mt19937 &rng)
     // cholesky()
     simd_trimatrix<T,S,N> m2 = p.cholesky();
     epsilon = m2.compare(m);
+    assert(epsilon < 1.0e-6);
+
+    // cholseky_flagged_in_place(), in case where all matrices are positive definite
+    simd_trimatrix<T,S,N> m3 = p;
+    simd_t<int,S> flags = m3.cholesky_flagged_in_place(1.0e-3);
+    int all_true = flags.compare_eq(1).test_all_ones();
+    epsilon = m3.compare(m);
+    assert(epsilon < 1.0e-6);
+    assert(all_true);
+
+    // cholseky_flagged_in_place(), with some random non positive definite matrices along for the ride
+
+    simd_t<int,S> target_flags = uniform_random_simd_t<int,S> (rng, 0, 1);
+
+    vector<int> v_f = vectorize(target_flags);
+    vector<T> v_p = vectorize(p);
+
+    for (unsigned int s = 0; s < S; s++) {
+	if (v_f[s])
+	    continue;
+	
+	// construct non-full-rank matrix by A A^T where A is shape (N-1,N)
+	// note: _gaussian_randvec() is a helper function defined in simd_debug.hpp
+	vector<T> amat = _gaussian_randvec<T> (rng, N*(N-1));
+	for (int i = 0; i < N; i++) {
+	    for (int j = 0; j <= i; j++) {
+		T t = 0;
+		for (int k = 0; k < N-1; k++)
+		    t += amat[i*(N-1)+k] * amat[j*(N-1)+k];
+		v_p[(i*(i+1)*S)/2 + j*S + s] = t;
+	    }
+	}
+    }
+
+    simd_trimatrix<T,S,N> m4 = pack_simd_trimatrix<T,S,N> (v_p);
+    
+    simd_t<int,S> actual_flags = m4.cholesky_flagged_in_place(1.0e-2);
+    simd_t<int,S> flag_agreement = actual_flags.compare_eq(target_flags);
+    assert(flag_agreement.test_all_ones());
+
+    vector<T> v_m = vectorize(m);
+    vector<T> v_m4 = vectorize(m4);
+
+    T num = 0;
+    T den = 0;
+
+    for (int s = 0; s < S; s++) {
+	if (!v_f[s])
+	    continue;
+
+	for (int i = 0; i < (N*(N+1))/2; i++) {
+	    T x = v_m[i*S+s];
+	    T y = v_m4[i*S+s];
+	    num += (x-y) * (x-y);
+	    den += x*x + y*y;
+	}
+    }
+
+    epsilon = (den > 0.0) ? sqrt(num/den) : 0.0;
     assert(epsilon < 1.0e-6);
 }
 
