@@ -49,6 +49,12 @@ struct _simd_nwriter
 	_simd_nwriter<T,S,N-1>::write(os, v.v);
 	os << ", " << v.x;
     }
+
+    static inline void write(std::ostream &os, const simd_trimatrix<T,S,N> &m)
+    {
+	_simd_nwriter<T,S,N-1>::write(os, m.m);
+	os << ",\n " << m.v;
+    }
 };
 
 
@@ -59,6 +65,11 @@ struct _simd_nwriter<T,S,1>
     {
 	os << v.x;
     }
+
+    static inline void write(std::ostream &os, const simd_trimatrix<T,S,1> &m)
+    {
+	os << m.v;
+    }
 };
 
 
@@ -67,6 +78,16 @@ std::ostream &operator<<(std::ostream &os, const simd_ntuple<T,S,N> &v)
 {
     os << "{";
     _simd_nwriter<T,S,N>::write(os, v);
+    os << "}";
+    return os;
+}
+
+
+template<typename T, unsigned int S, unsigned int N>
+std::ostream &operator<<(std::ostream &os, const simd_trimatrix<T,S,N> &m)
+{
+    os << "{";
+    _simd_nwriter<T,S,N>::write(os, m);
     os << "}";
     return os;
 }
