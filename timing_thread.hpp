@@ -54,8 +54,10 @@ protected:
     timing_thread_pool::time_t start_time;
     bool timer_is_running = false;
 
+    // Thread-collective: all threads wait at a barrier, then initialize their local timers.
     void start_timer();
 
+    // Thread-collective: the returned time is the average taken over all threads.
     // If 'name' is non-null, then timing will be announced on thread ID zero.
     double stop_timer(const char *name=nullptr);
 };
