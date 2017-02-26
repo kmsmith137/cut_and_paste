@@ -1,5 +1,7 @@
 #include <cassert>
 #include <iostream>
+
+#include "lexical_cast.hpp"
 #include "arithmetic_inlines.hpp"
 
 using namespace std;
@@ -26,5 +28,6 @@ static void test_round_up_to_power_of_two()
 int main(int argc, char **argv)
 {
     test_round_up_to_power_of_two();
+    test_lexical_cast();
     return 0;
 }
