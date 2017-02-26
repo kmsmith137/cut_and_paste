@@ -1,4 +1,4 @@
 *~
 *.o
 timing-thread-example
-test-arithmetic
+run-tests
