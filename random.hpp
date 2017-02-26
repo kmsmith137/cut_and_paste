@@ -101,5 +101,18 @@ inline int randint(std::mt19937 &rng, int lo, int hi)
 }
 
 
+// -------------------------------------------------------------------------------------------------
+//
+// Misc
+
+
+template<typename T> inline void randomly_permute(std::mt19937 &rng, std::vector<T> &v)
+{
+    for (unsigned int i = 1; i < v.size(); i++) {
+	int j = randint(rng, 0,i+1);
+	std::swap(v[i], v[j]);
+    }
+}
+
 
 #endif
