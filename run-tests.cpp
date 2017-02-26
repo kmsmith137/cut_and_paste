@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "arithmetic.hpp"
+#include "arithmetic_inlines.hpp"
 
 using namespace std;
 
