@@ -1,11 +1,15 @@
 CPP=g++ -std=c++11 -pthread -Wall -O3 -ffast-math -funroll-loops
-EXEFILES=run-tests timing-thread-example
+
+EXEFILES=run-tests argument-parser-example timing-thread-example
 
 all: $(EXEFILES)
 
 
 ####################################################################################################
 
+
+argument_parser.o: argument_parser.cpp argument_parser.hpp lexical_cast.hpp
+	$(CPP) -c $<
 
 lexical_cast.o: lexical_cast.cpp lexical_cast.hpp
 	$(CPP) -c $<
@@ -16,6 +20,9 @@ timing_thread.o: timing_thread.cpp timing_thread.hpp
 run-tests.o: run-tests.cpp lexical_cast.hpp arithmetic_inlines.hpp
 	$(CPP) -c $<
 
+argument-parser-example.o: argument-parser-example.cpp argument_parser.hpp
+	$(CPP) -c $<
+
 timing-thread-example.o: timing-thread-example.cpp timing_thread.hpp
 	$(CPP) -c $<
 
@@ -24,10 +31,13 @@ timing-thread-example.o: timing-thread-example.cpp timing_thread.hpp
 
 
 run-tests: run-tests.o lexical_cast.o
-	$(CPP) -o run-tests $^
+	$(CPP) -o $@ $^
+
+argument-parser-example: argument-parser-example.o argument_parser.o lexical_cast.o
+	$(CPP) -o $@ $^
 
 timing-thread-example: timing-thread-example.o timing_thread.o
-	$(CPP) -o timing-thread-example $^
+	$(CPP) -o $@ $^
 
 clean:
 	rm -f *~ *.o EXEFILES

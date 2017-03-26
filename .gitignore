@@ -1,4 +1,5 @@
 *~
 *.o
+argument-parser-example
 timing-thread-example
 run-tests
