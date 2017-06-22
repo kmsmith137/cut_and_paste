@@ -1,2 +1,5 @@
 mandatory_int_key: 3
 present_float_key: 4.1
+
+mandatory_vector_float_key: [ 1.5, 2.5, 3.5 ]
+present_vector_int_key: 5   # will be auto-converted to length-1 vector

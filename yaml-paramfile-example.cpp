@@ -1,6 +1,9 @@
 #include <fstream>
 #include "yaml_paramfile.hpp"
 
+using namespace std;
+
+
 int main(int argc, char **argv)
 {
     int verbosity = 2;
@@ -11,9 +14,14 @@ int main(int argc, char **argv)
     float present_float_key = p.read_scalar<float> ("present_float_key", 100.1);
     float missing_double_key = p.read_scalar<double> ("missing_double_key", 100.1);
 
-    // Throw 
+    vector<float> mandatory_vector_float_key = p.read_vector<float> ("mandatory_vector_float_key");
+    vector<int> present_vector_int_key = p.read_vector<int> ("present_vector_int_key", { 2, 3 });
+    vector<int> missing_vector_int_key = p.read_vector<int> ("missing_vector_int_key", { 2, 3 });
+
+    // Throw some data in /dev/null, to suppress 'unused variable...' compiler warning
     std::ofstream fnull("/dev/null");
-    fnull << mandatory_int_key << present_float_key << missing_double_key;
+    fnull << mandatory_int_key << present_float_key << missing_double_key 
+	  << mandatory_vector_float_key.size() << present_vector_int_key.size() << missing_vector_int_key.size();
 
     return 0;
 }
