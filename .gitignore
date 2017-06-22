@@ -2,4 +2,6 @@
 *.o
 argument-parser-example
 timing-thread-example
+yaml-paramfile-example
 run-tests
+
