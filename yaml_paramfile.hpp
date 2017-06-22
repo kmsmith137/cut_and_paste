@@ -38,14 +38,14 @@ struct yaml_paramfile {
     template<typename T>
     T _read_scalar(const std::string &k) const
     {
-	T ret;
+	requested_keys.insert(k);
+	T ret = 0;  // compiler pacifier
 
 	try {
 	    ret = yaml[k].as<T> ();
 	}
 	catch (...) {
 	    _die(std::string("expected '") + k + std::string("' to have type ") + type_name<T>());
-	    return 0;  // compiler pacifier
 	}
 
 	if (verbosity >= 2)
@@ -58,8 +58,6 @@ struct yaml_paramfile {
     template<typename T>
     T read_scalar(const std::string &k) const
     {
-	requested_keys.insert(k);
-
 	if (!has_param(k))
 	    _die("parameter '" + k + "' not found");
 
@@ -70,8 +68,6 @@ struct yaml_paramfile {
     template<typename T>
     T read_scalar(const std::string &k, T default_val) const
     {
-	requested_keys.insert(k);
-
 	if (!has_param(k)) {
 	    if (verbosity >= 1)
 		_print("parameter '" + k + "' not found, using default value " + stringify(default_val) + "\n");
