@@ -34,19 +34,25 @@ struct yaml_paramfile {
     template<typename T> static inline std::string type_name();
     template<typename T> static inline std::string stringify(const T &x) { std::stringstream ss; ss << x; return ss.str(); }
 
-    // _read_scalar(): assumes key exists
+    // _read_scalar1(): helper for read_scalar(), assumes key exists
     template<typename T>
-    T _read_scalar(const std::string &k) const
+    T _read_scalar1(const std::string &k) const
+    {
+	try {
+	    return yaml[k].as<T> ();
+	}
+	catch (...) { }
+
+	_die(std::string("expected '") + k + std::string("' to have type ") + type_name<T>());
+	throw std::runtime_error("yaml_paramfile::_die() returned?!");
+    }
+
+    // _read_scalar2(): helper for read_scalar(), assumes key exists
+    template<typename T>
+    T _read_scalar2(const std::string &k) const
     {
 	requested_keys.insert(k);
-	T ret = 0;  // compiler pacifier
-
-	try {
-	    ret = yaml[k].as<T> ();
-	}
-	catch (...) {
-	    _die(std::string("expected '") + k + std::string("' to have type ") + type_name<T>());
-	}
+	T ret = _read_scalar1<T> (k);
 
 	if (verbosity >= 2)
 	    _print(k + " = " + stringify(ret) + "\n");
@@ -61,7 +67,7 @@ struct yaml_paramfile {
 	if (!has_param(k))
 	    _die("parameter '" + k + "' not found");
 
-	return _read_scalar<T> (k);
+	return _read_scalar2<T> (k);
     }
 
     // This version of read_scalar() has a default value, which is returned if the key is not found.
@@ -74,8 +80,9 @@ struct yaml_paramfile {
 	    return default_val;
 	}
 
-	return _read_scalar<T> (k);
+	return _read_scalar2<T> (k);
     }
+
 
     // Automatically converts a scalar to length-1 vector.
     template<typename T>
