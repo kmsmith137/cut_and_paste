@@ -145,6 +145,7 @@ struct yaml_paramfile {
 
 
 template<> inline std::string yaml_paramfile::type_name<int> () { return "int"; }
+template<> inline std::string yaml_paramfile::type_name<bool> () { return "bool"; }
 template<> inline std::string yaml_paramfile::type_name<float> () { return "float"; }
 template<> inline std::string yaml_paramfile::type_name<double> () { return "double"; }
 template<> inline std::string yaml_paramfile::type_name<std::string> () { return "string"; }

@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 #include "yaml_paramfile.hpp"
 
 using namespace std;
@@ -18,9 +19,11 @@ int main(int argc, char **argv)
     vector<int> present_vector_int_key = p.read_vector<int> ("present_vector_int_key", { 2, 3 });
     vector<int> missing_vector_int_key = p.read_vector<int> ("missing_vector_int_key", { 2, 3 });
 
+    bool boolean_key = p.read_scalar<bool> ("boolean_key");
+
     // Throw some data in /dev/null, to suppress 'unused variable...' compiler warning
     std::ofstream fnull("/dev/null");
-    fnull << mandatory_int_key << present_float_key << missing_double_key 
+    fnull << mandatory_int_key << present_float_key << missing_double_key << boolean_key
 	  << mandatory_vector_float_key.size() << present_vector_int_key.size() << missing_vector_int_key.size();
 
     return 0;
