@@ -2,7 +2,10 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sstream>
+
 #include "file_utils.hpp"
+#include "lexical_cast.hpp"
 
 using namespace std;
 
@@ -49,3 +52,37 @@ vector<string> listdir(const string &dirname)
 
     return filenames;
 }
+
+
+// -------------------------------------------------------------------------------------------------
+//
+// get_open_file_descriptors()
+
+
+static vector<int> _get_open_fds(const char *fd_dirname)
+{
+    vector<int> ret;
+
+    for (const string &s: listdir(fd_dirname)) {
+	int fd;
+
+	if (lexical_cast(s, fd)) {
+	    ret.push_back(fd);
+	    continue;
+	}
+
+	stringstream ss;
+	ss << "get_open_file_descriptors(): filename '" << fd_dirname << "/" << s << "' is not an integer";
+	throw runtime_error(ss.str());
+    }
+
+    return ret;
+}
+
+#if defined(__linux__)
+vector<int> get_open_file_descriptors() { return _get_open_fds("/proc/self/fd"); }
+#elif defined(__APPLE__)
+vector<int> get_open_file_descriptors() { return _get_open_fds("/dev/fd"); }
+#else
+vector<int> get_open_file_descriptors() { throw runtime_error("get_open_file_descriptors() is only implemented on linux and osx"); }
+#endif
