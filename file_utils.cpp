@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
+
+#include <cstring>
 #include <sstream>
 
 #include "file_utils.hpp"
