@@ -1,7 +1,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <cstring>
 #include <iostream>
+#include <algorithm>
 #include "file_utils.hpp"
 
 using namespace std;

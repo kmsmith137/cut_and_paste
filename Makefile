@@ -1,6 +1,10 @@
 CPP=g++ -std=c++11 -pthread -Wall -O3 -ffast-math -funroll-loops
 
-EXEFILES=run-tests argument-parser-example timing-thread-example yaml-paramfile-example
+EXEFILES=run-tests \
+  argument-parser-example \
+  get-open-file-descriptors-example \
+  timing-thread-example \
+  yaml-paramfile-example
 
 all: $(EXEFILES)
 

@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
+
+#include <cstring>
 #include <sstream>
 
 #include "file_utils.hpp"
@@ -64,8 +66,10 @@ static vector<int> _get_open_fds(const char *fd_dirname)
     vector<int> ret;
 
     for (const string &s: listdir(fd_dirname)) {
+	if ((s == ".") || (s == ".."))
+	    continue;
+	
 	int fd;
-
 	if (lexical_cast(s, fd)) {
 	    ret.push_back(fd);
 	    continue;
