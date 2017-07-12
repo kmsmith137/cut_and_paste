@@ -11,6 +11,9 @@ all: $(EXEFILES)
 argument_parser.o: argument_parser.cpp argument_parser.hpp lexical_cast.hpp
 	$(CPP) -c $<
 
+file_utils.o: file_utils.cpp file_utils.hpp
+	$(CPP) -c $<
+
 lexical_cast.o: lexical_cast.cpp lexical_cast.hpp
 	$(CPP) -c $<
 
