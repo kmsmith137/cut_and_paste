@@ -1,6 +1,7 @@
 *~
 *.o
 argument-parser-example
+get-open-file-descriptors-example
 timing-thread-example
 yaml-paramfile-example
 run-tests
