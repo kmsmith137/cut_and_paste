@@ -3,6 +3,7 @@ CPP=g++ -std=c++11 -pthread -Wall -O3 -ffast-math -funroll-loops
 EXEFILES=run-tests \
   argument-parser-example \
   get-open-file-descriptors-example \
+  show-physical-memory \
   timing-thread-example \
   yaml-paramfile-example
 
@@ -54,6 +55,9 @@ argument-parser-example: argument-parser-example.o argument_parser.o lexical_cas
 
 get-open-file-descriptors-example: get-open-file-descriptors-example.o file_utils.o lexical_cast.o
 	$(CPP) -o $@ $^
+
+show-physical-memory: show-physical-memory.cpp
+	$(CPP) -o $@ $<
 
 timing-thread-example: timing-thread-example.o timing_thread.o
 	$(CPP) -o $@ $^

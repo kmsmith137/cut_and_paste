@@ -90,3 +90,17 @@ vector<int> get_open_file_descriptors() { return _get_open_fds("/dev/fd"); }
 #else
 vector<int> get_open_file_descriptors() { throw runtime_error("get_open_file_descriptors() is only implemented on linux and osx"); }
 #endif
+
+
+// -------------------------------------------------------------------------------------------------
+
+
+void close_all_file_descriptors(int min_fd)
+{
+    for (int fd: get_open_file_descriptors()) {
+	// Don't check return value from close(), since get_open_file_descriptors()
+	// returns previously closed fds.
+	if (fd >= min_fd)
+	    close(fd);
+    }
+}
