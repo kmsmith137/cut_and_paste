@@ -87,7 +87,7 @@ void write_file(const string &filename, const void *buf, ssize_t count, bool clo
     if (count && !p)
 	throw runtime_error("write_file(): 'buf' is a null pointer");
 	
-    int flags = O_CREAT | O_TRUNC;
+    int flags = O_WRONLY | O_CREAT | O_TRUNC;
     if (!clobber)
 	flags |= O_EXCL;
 
