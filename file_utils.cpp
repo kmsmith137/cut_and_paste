@@ -38,6 +38,36 @@ bool is_directory(const string &filename)
 }
 
 
+bool is_empty_directory(const string &dirname)
+{
+    DIR *dir = opendir(dirname.c_str());
+    if (!dir)
+	throw runtime_error(dirname + ": opendir() failed: " + strerror(errno));
+
+    ssize_t name_max = pathconf(dirname.c_str(), _PC_NAME_MAX);
+    name_max = min(name_max, (ssize_t)4096);
+
+    vector<char> buf(sizeof(struct dirent) + name_max + 1);
+    struct dirent *entry = reinterpret_cast<struct dirent *> (&buf[0]);
+    
+    for (;;) {
+	struct dirent *result = nullptr;
+
+	int err = readdir_r(dir, entry, &result);	
+	if (err)
+	    throw runtime_error(dirname + ": readdir_r() failed");
+	if (!result)
+	    return true;
+	if (!strcmp(entry->d_name, "."))
+	    continue;
+	if (!strcmp(entry->d_name, ".."))
+	    continue;
+	
+	return false;
+    }
+}
+
+
 vector<string> listdir(const string &dirname)
 {
     vector<string> filenames;
