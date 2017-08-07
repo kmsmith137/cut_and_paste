@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -72,10 +73,51 @@ void delete_file(const string &filename)
 {
     int err = unlink(filename.c_str());
     if (err < 0)
-	throw runtime_error(filename + ": " + strerror(errno));
+	throw runtime_error(filename + ": unlink() failed: " + strerror(errno));
 }
-		 
 
+
+void write_file(const string &filename, const void *buf, ssize_t count, bool clobber)
+{
+    // This cast to (uint8_t *) suppresses a superfluous compiler warning below.
+    uint8_t *p = (uint8_t *) buf;
+    
+    if (count < 0)
+	throw runtime_error("write_file(): expected count >= 0");
+    if (count && !p)
+	throw runtime_error("write_file(): 'buf' is a null pointer");
+	
+    int flags = O_CREAT | O_TRUNC;
+    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+
+    if (!clobber)
+	flags |= O_EXCL;
+	
+    int fd = open(filename.c_str(), flags, mode);
+    if (fd < 0)
+	throw runtime_error(filename + ": open() failed: " + strerror(errno));
+
+    // We loop over multiple calls to write() because, according to the manpage,
+    // write() is allowed to write a subset of the buffer and return the number of
+    // bytes actually written.  I've never seen this actually happen though!
+
+    while (count > 0) {
+	ssize_t n = write(fd, p, count);
+
+	if (n <= 0) {
+	    close(fd);
+	    const char *msg = (n < 0) ? strerror(errno) : "write() returned 0?!";
+	    throw runtime_error(filename + ": write() failed: " + msg);
+	}
+	
+	count -= n;
+	p += n;
+    }
+
+    close(fd);
+}
+
+	
 vector<string> listdir(const string &dirname)
 {
     vector<string> filenames;
