@@ -88,11 +88,12 @@ void write_file(const string &filename, const void *buf, ssize_t count, bool clo
 	throw runtime_error("write_file(): 'buf' is a null pointer");
 	
     int flags = O_CREAT | O_TRUNC;
-    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-
     if (!clobber)
 	flags |= O_EXCL;
-	
+
+    // Reasonable default?  owner=rw, group=r, other=r (note that umask will also be applied)
+    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+
     int fd = open(filename.c_str(), flags, mode);
     if (fd < 0)
 	throw runtime_error(filename + ": open() failed: " + strerror(errno));
