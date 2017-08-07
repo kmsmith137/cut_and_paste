@@ -68,6 +68,14 @@ bool is_empty_directory(const string &dirname)
 }
 
 
+void delete_file(const string &filename)
+{
+    int err = unlink(filename.c_str());
+    if (err < 0)
+	throw runtime_error(filename + ": " + strerror(errno));
+}
+		 
+
 vector<string> listdir(const string &dirname)
 {
     vector<string> filenames;
