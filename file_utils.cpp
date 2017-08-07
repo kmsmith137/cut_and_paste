@@ -26,6 +26,18 @@ bool file_exists(const string &filename)
 }
 
 
+bool is_directory(const string &filename)
+{
+    struct stat s;
+
+    int err = stat(filename.c_str(), &s);
+    if (err < 0)
+	throw runtime_error(filename + ": " + strerror(errno));
+
+    return S_ISDIR(s.st_mode);
+}
+
+
 vector<string> listdir(const string &dirname)
 {
     vector<string> filenames;
