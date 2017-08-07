@@ -69,6 +69,18 @@ bool is_empty_directory(const string &dirname)
 }
 
 
+ssize_t get_file_size(const string &filename)
+{
+    struct stat s;
+
+    int err = stat(filename.c_str(), &s);
+    if (err < 0)
+	throw runtime_error(filename + ": " + strerror(errno));
+
+    return s.st_size;
+}
+
+
 void delete_file(const string &filename)
 {
     int err = unlink(filename.c_str());
