@@ -89,6 +89,20 @@ void delete_file(const string &filename)
 }
 
 
+void sync_filesystem(const string &filename)
+{
+    int fd = open(filename.c_str(), O_RDONLY, 0);
+    if (fd < 0)
+	throw runtime_error(filename + ": open() failed: " + strerror(errno));
+
+    int err = syncfs(fd);
+    close(fd);
+    
+    if (err < 0)
+	throw runtime_error(filename + ": syncfs() failed: " + strerror(errno));
+}
+
+
 void write_file(const string &filename, const void *buf, ssize_t count, bool clobber)
 {
     // This cast to (uint8_t *) suppresses a superfluous compiler warning below.
