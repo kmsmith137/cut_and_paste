@@ -11,7 +11,8 @@ extern bool is_empty_directory(const std::string &filename);
 
 extern void delete_file(const std::string &filename);
 extern void write_file(const std::string &filename, const void *buf, ssize_t count, bool clobber);
-extern void sync_filesystem(const string &filename);
+extern void hard_link(const std::string &src_filename, const std::string &dst_filename);
+extern void sync_filesystem(const std::string &filename);
 extern ssize_t get_file_size(const std::string &filename);
 
 extern std::vector<std::string> listdir(const std::string &dirname);

@@ -144,6 +144,14 @@ void write_file(const string &filename, const void *buf, ssize_t count, bool clo
     close(fd);
 }
 
+
+void hard_link(const string &src_filename, const string &dst_filename)
+{
+    int err = link(src_filename.c_str(), dst_filename.c_str());
+    if (err < 0)
+	throw runtime_error("hard_link() failed (" + src_filename + " -> " + dst_filename + ": " + strerror(errno));
+}
+
 	
 vector<string> listdir(const string &dirname)
 {
