@@ -18,10 +18,7 @@ public:
     {
 	this->start_timer();
 	sleep(5 + this->thread_id);
-	double dt = this->stop_timer();
-
-	if (thread_id == 0)
-	    cerr << "time_sleep: " << dt << endl;
+	this->stop_timer("time_sleep");
     }
 
     virtual void thread_body() override

@@ -2,6 +2,7 @@
 *.o
 argument-parser-example
 get-open-file-descriptors-example
+show-physical-memory
 timing-thread-example
 yaml-paramfile-example
 run-tests
