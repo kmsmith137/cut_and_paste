@@ -69,11 +69,27 @@ bool is_empty_directory(const string &dirname)
 }
 
 
-void makedir(const string &filename, mode_t mode)
+void makedir(const string &filename, bool throw_exception_if_directory_exists, mode_t mode)
 {
     int err = mkdir(filename.c_str(), mode);
-    if (err < 0)
+
+    if (err >= 0)
+	return;
+    if (throw_exception_if_directory_exists || (errno != EEXIST))
 	throw runtime_error(filename + ": mkdir() failed: " + strerror(errno));
+    
+    // If we get here, then mkdir() failed with EEXIST, and throw_exception_if_directory_exists=false.
+    // We still throw an exception if the file is not a directory.
+
+    struct stat s;
+    err = stat(filename.c_str(), &s);
+
+    // A weird corner case.
+    if (err < 0)
+	throw runtime_error(filename + ": mkdir() returned EEXIST but stat() failed, not sure what is going on");
+
+    if (!S_ISDIR(s.st_mode))
+	throw runtime_error(filename + ": file exists but is not a directory");
 }
 
 
