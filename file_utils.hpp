@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <sys/stat.h>
 
 #ifndef _FILE_UTILS_HPP
 #define _FILE_UTILS_HPP
@@ -8,6 +9,7 @@
 extern bool file_exists(const std::string &filename);
 extern bool is_directory(const std::string &filename);
 extern bool is_empty_directory(const std::string &filename);
+extern void makedir(const std::string &filename, mode_t mode=0777);  // umask will be applied to 'mode'
 
 extern void delete_file(const std::string &filename);
 extern void write_file(const std::string &filename, const void *buf, ssize_t count, bool clobber);

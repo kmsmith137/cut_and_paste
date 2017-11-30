@@ -69,6 +69,14 @@ bool is_empty_directory(const string &dirname)
 }
 
 
+void makedir(const string &filename, mode_t mode)
+{
+    int err = mkdir(filename.c_str(), mode);
+    if (err < 0)
+	throw runtime_error(filename + ": mkdir() failed: " + strerror(errno));
+}
+
+
 ssize_t get_file_size(const string &filename)
 {
     struct stat s;
