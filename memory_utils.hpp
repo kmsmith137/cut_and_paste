@@ -60,10 +60,26 @@ inline uptr<T> make_uptr(size_t nelts, size_t nalign=128, bool zero=true)
 
 // -------------------------------------------------------------------------------------------------
 //
-// make_unique
+// make_sptr<T> usage:
+//
+// shared_ptr<float[]> p = make_sptr<float> (nelts);
 
 
-// This is in C++14 but not C++11.
+static void sptr_deleter(const void *p) { free(p); }
+
+template<typename T>
+inline std::shared_ptr<T[]> make_sptr(size_t nelts, size_t nalign=128, bool zero=true)
+{
+    T *p = aligned_alloc<T> (nelts, nalign, zero);
+    return std::shared_ptr<T[]> (p, sptr_deleter);
+}
+
+
+// -------------------------------------------------------------------------------------------------
+//
+// make_unique().  This is in C++14 but not C++11.
+
+
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args)
 {
