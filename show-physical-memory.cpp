@@ -20,7 +20,12 @@ static ssize_t get_physical_memory()
     if (npages < 0)
 	throw runtime_error(string("sysconf(_SC_PHYS_PAGES) failed: ") + strerror(errno));
 
-    return npages * pagesize;
+    ssize_t nbytes = npages * pagesize;
+
+    if (nbytes <= 0)
+	throw runtime_error("get_physical_memory(): zero bytes found?!");
+
+    return nbytes;
 }
 
 
