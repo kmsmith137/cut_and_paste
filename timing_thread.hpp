@@ -16,8 +16,8 @@ public:
     int get_and_increment_thread_id();
 
     // A "reducing" barrier.  When each thread arrives at the barrier, it
-    // specifies a value of "x".  The return value from wait_at_barrier()
-    // is the mean (over all threads) of the x-values.
+    // specifies a value of "t".  The return value from wait_at_barrier()
+    // is the mean (over all threads) of the t-values.
     double wait_at_barrier(double t=0);
 
 protected:
@@ -43,6 +43,14 @@ public:
     const int thread_id;
     const int nthreads;
 
+    // If 'name' is a nonempty string, then timings will be printed on thread ID zero 
+    // when stop_timer() is called (see below).  If 'nbytes_accessed' and 'floating_point_ops'
+    // are nonzero, then memory bandwidth and flops will also be printed.
+
+    std::string name;
+    ssize_t nbytes_accessed = 0;
+    ssize_t floating_point_ops = 0;
+
     static void _thread_main(timing_thread *t);
 
     virtual ~timing_thread() { }
@@ -63,7 +71,7 @@ protected:
     
     // Thread-collective: snychronizes and computes 'global_dt', the average running time on all threads.
     // If 'name' is non-null, then timing will be announced on thread ID zero.
-    void stop_timer(const char *name=nullptr);
+    void stop_timer();
 
     // Temporarily pause local timer, if there is some processing which should
     // be excluded from the timing.  (Not thread-collective.)

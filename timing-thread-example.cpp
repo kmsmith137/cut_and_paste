@@ -16,9 +16,10 @@ public:
 
     void time_sleep()
     {
+	this->name = "time_sleep";
 	this->start_timer();
 	sleep(5 + this->thread_id);
-	this->stop_timer("time_sleep");
+	this->stop_timer();
     }
 
     virtual void thread_body() override

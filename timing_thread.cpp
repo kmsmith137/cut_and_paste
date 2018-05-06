@@ -1,3 +1,4 @@
+#include <cmath>
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -135,13 +136,22 @@ void timing_thread::start_timer()
 }
 
 
-void timing_thread::stop_timer(const char *name)
+void timing_thread::stop_timer()
 {
     this->pause_timer();
     this->global_dt = pool->wait_at_barrier(local_dt);
 
-    if (name && !thread_id)
-	cout << (string(name) + ": " + to_string(global_dt) + " seconds\n");
+    if ((thread_id != 0) || (name.size() == 0))
+	return;
+
+    cout << name << ": " << global_dt << " seconds";
+
+    if (nbytes_accessed > 0)
+	cout << ", memory bandwidth " << (nbytes_accessed / global_dt / pow(2.,30.)) << " GB/sec";
+    if (floating_point_ops > 0)
+	cout << ", gflops=" << (floating_point_ops / global_dt / pow(2.,30.));
+
+    cout << endl;
 }
 
 
@@ -166,4 +176,3 @@ void timing_thread::unpause_timer()
     gettimeofday(&this->start_time, NULL);
     this->timer_is_running = true;
 }
-
